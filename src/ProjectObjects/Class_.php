@@ -152,7 +152,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         $this->inheritanceString($asHtml, $build);
         $this->interfacesString($asHtml, $build);
         $this->traitsString($asHtml, $build);
@@ -180,7 +180,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     public function mediumDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         $this->inheritanceString($asHtml, $build);
         $this->interfacesString($asHtml, $build);
         if ($withLink) {
@@ -207,7 +207,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     public function smallDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         $this->inheritanceString($asHtml, $build);
         if ($withLink) {
             return Html5Gen::a([
@@ -231,7 +231,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         if ($withLink) {
             return Html5Gen::a([
                 'class' => 'call-signature',
@@ -261,19 +261,6 @@ class Class_ extends ClassReflector implements HasDeclarations
     }
 
     /**
-     * [classString description]
-     * @param  [type] $asHtml [description]
-     * @param  [type] &$build [description]
-     * @return [type]         [description]
-     *
-     * @category Strings
-     */
-    private function classString($asHtml, &$build)
-    {
-        $build[] = $this->displayString($asHtml, $this->name, 'class');
-    }
-
-    /**
      * [inheritanceString description]
      * @param  [type] $asHtml [description]
      * @param  [type] &$build [description]
@@ -285,7 +272,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     {
         if (strlen($this->parentName()) > 0) {
             $string = $this->relatedString($asHtml, $this->parentName());
-            $build[] = $this->displayString($asHtml, $string, 'extends');
+            $build[] = StringHelpers::displayString($asHtml, $string, 'extends');
         }
     }
 
@@ -301,7 +288,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     {
         if (strlen($this->interfaceNames) > 0) {
             $string = $this->relatedString($asHtml, $this->interfaceNames());
-            $build[] = $this->displayString($asHtml, $string, 'implements', 'implements-label');
+            $build[] = StringHelpers::displayString($asHtml, $string, 'implements', 'implements-label');
         }
     }
 
@@ -322,7 +309,7 @@ class Class_ extends ClassReflector implements HasDeclarations
 
             $traits = $this->relatedString($asHtml, $this->traitNames());
 
-            $build[] = $this->displayString($asHtml, $traits, $keyword, 'traits-label');
+            $build[] = StringHelpers::displayString($asHtml, $traits, $keyword, 'traits-label');
         }
     }
 
@@ -349,27 +336,6 @@ class Class_ extends ClassReflector implements HasDeclarations
             $string = implode(', ', $htmlStrings);
         }
         return $string;
-    }
-
-    /**
-     * [displayString description]
-     * @param  [type] $asHtml         [description]
-     * @param  [type] $title          [description]
-     * @param  [type] $keywordContent [description]
-     * @param  [type] $keywordClass   [description]
-     * @return [type]                 [description]
-     *
-     * @category Strings
-     */
-    private function displayString($asHtml, $title, $keywordContent, $keywordClass = null)
-    {
-        if ($asHtml) {
-            $keywordContent = Html5Gen::span([
-                'content' => $keywordContent,
-                'class' => (is_null($keywordClass)) ? $keywordContent : $keywordClass
-            ]);
-        }
-        return $keywordContent .' '. $title;
     }
 
     /**

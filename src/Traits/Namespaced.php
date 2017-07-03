@@ -35,9 +35,28 @@ trait Namespaced
         return $this->reflector->getShortName();
     }
 
+    /**
+     * [slug description]
+     * @return [type] [description]
+     *
+     * @category Strings
+     */
     public function slug()
     {
         return StringHelpers::slug($this->name);
+    }
+
+    /**
+     * [classString description]
+     * @param  [type] $asHtml [description]
+     * @param  [type] &$build [description]
+     * @return [type]         [description]
+     *
+     * @category Strings
+     */
+    private function displayNameString($asHtml, &$build, $keyword = 'class')
+    {
+        $build[] = StringHelpers::displayString($asHtml, $this->name, $keyword);
     }
 
     /**
