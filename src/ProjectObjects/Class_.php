@@ -11,6 +11,7 @@ use Eightfold\DocumenterPhp\Project;
 use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
 use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
+use Eightfold\DocumenterPhp\ProjectObjects\Property;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
@@ -54,6 +55,8 @@ class Class_ extends ClassReflector implements HasDeclarations
 
     protected $traits = [];
 
+    private $_properties = [];
+
     private $_methods = [];
 
     public function __construct(Project $project, ClassReflector $reflector)
@@ -85,23 +88,43 @@ class Class_ extends ClassReflector implements HasDeclarations
         return $this->objectsForPropertyName('traits', Trait_::class, $this->reflector->getTraits());
     }
 
+    public function properties()
+    {
+        return $this->symbolsForProperty('_properties', Property::class, 'getProperties');
+    }
+
+    public function propertyWithName($name)
+    {
+        return $this->symbolWithName('properties', $name);
+    }
+
     public function methods()
     {
-        if (count($this->_methods) == 0 && count($this->reflector->getMethods()) > 0) {
-            $return = [];
-            foreach ($this->reflector->getMethods() as $method) {
-                $return[] = new ClassMethod($this, $method);
-            }
-            $this->_methods = $return;
-        }
-        return $this->_methods;
+        return $this->symbolsForProperty('_methods', ClassMethod::class, 'getMethods');
     }
 
     public function methodWithName($name)
     {
-        foreach ($this->methods() as $classMethod) {
-            if ($classMethod->name == $name) {
-                return $classMethod;
+        return $this->symbolWithName('methods', $name);
+    }
+
+    private function symbolsForProperty($instanceProperty, $classToInstantiate, $reflectorMethodName)
+    {
+        if (count($this->{$instanceProperty}) == 0 && count($this->reflector->$reflectorMethodName()) > 0) {
+            $return = [];
+            foreach ($this->reflector->$reflectorMethodName() as $reflector) {
+                $return[] = new $classToInstantiate($this, $reflector);
+            }
+            $this->{$instanceProperty} = $return;
+        }
+        return $this->{$instanceProperty};
+    }
+
+    public function symbolWithName($instanceMethod, $name)
+    {
+        foreach ($this->$instanceMethod() as $symbol) {
+            if ($symbol->name == $name) {
+                return $symbol;
             }
         }
         return null;
