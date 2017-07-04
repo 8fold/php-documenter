@@ -2,31 +2,32 @@
 
 namespace Eightfold\DocumenterPhp\ProjectObjects;
 
-use Eightfold\Html5Gen\Html5Gen;
-use Eightfold\DocumenterPhp\Helpers\StringHelpers;
-
-use phpDocumentor\Reflection\TraitReflector;
+use phpDocumentor\Reflection\InterfaceReflector;
 
 use Eightfold\DocumenterPhp\Project;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
+use Eightfold\DocumenterPhp\Traits\DocBlocked;
 
 /**
+ * Represents an `interface` in a project.
+ *
  * @category Project object
  */
-class Trait_ extends TraitReflector
+class Interface_ extends InterfaceReflector
 {
     use Gettable,
-        Namespaced;
+        Namespaced,
+        DocBlocked;
 
-    static private $urlProjectObjectName = 'traits';
-
-    private $project = null;
+    static private $urlProjectObjectName = 'interfaces';
 
     private $reflector = null;
 
-    public function __construct(Project $project, TraitReflector $reflector)
+    private $project = null;
+
+    public function __construct(Project $project, InterfaceReflector $reflector)
     {
         $this->project = $project;
         $this->reflector = $reflector;
@@ -94,7 +95,7 @@ class Trait_ extends TraitReflector
     public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
     {
         $build = [];
-        $keyword = 'trait';
+        $keyword = 'interface';
         $this->displayNameString($asHtml, $build, $keyword);
         $string = implode(' ', $build);
         if ($showKeyword) {

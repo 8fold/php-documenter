@@ -38,6 +38,13 @@ class ClassTest extends BaseTest
         $this->assertTrue(count($object->traits) == 1, 'traits found: '. count($object->traits));
     }
 
+    public function testProjectMethods()
+    {
+        $project = new Project($this->versionPath());
+        $object = $project->objectWithFullName(Project::class);
+        $this->assertTrue(count($object->methods) == 20, 'methods found: '. count($object->methods));
+    }
+
     public function testClassClassLargeDeclaration()
     {
         $project = new Project($this->versionPath());

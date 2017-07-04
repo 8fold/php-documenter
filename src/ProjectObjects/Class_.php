@@ -10,6 +10,7 @@ use phpDocumentor\Reflection\ClassReflector;
 use Eightfold\DocumenterPhp\Project;
 use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
@@ -53,6 +54,8 @@ class Class_ extends ClassReflector implements HasDeclarations
 
     protected $traits = [];
 
+    private $_methods = [];
+
     public function __construct(Project $project, ClassReflector $reflector)
     {
         $this->project = $project;
@@ -60,6 +63,11 @@ class Class_ extends ClassReflector implements HasDeclarations
 
         // Setting `node` on ClassReflector
         $this->node = $this->reflector->getNode();
+    }
+
+    public function project()
+    {
+        return $this->project;
     }
 
     public function isAbstract()
@@ -75,6 +83,28 @@ class Class_ extends ClassReflector implements HasDeclarations
     public function traits()
     {
         return $this->objectsForPropertyName('traits', Trait_::class, $this->reflector->getTraits());
+    }
+
+    public function methods()
+    {
+        if (count($this->_methods) == 0 && count($this->reflector->getMethods()) > 0) {
+            $return = [];
+            foreach ($this->reflector->getMethods() as $method) {
+                $return[] = new ClassMethod($this, $method);
+            }
+            $this->_methods = $return;
+        }
+        return $this->_methods;
+    }
+
+    public function methodWithName($name)
+    {
+        foreach ($this->methods() as $classMethod) {
+            if ($classMethod->name == $name) {
+                return $classMethod;
+            }
+        }
+        return null;
     }
 
     /**
@@ -257,7 +287,7 @@ class Class_ extends ClassReflector implements HasDeclarations
         if ($showKeyword) {
             return $string;
         }
-        return str_replace('class ', $string);
+        return str_replace('class ', '', $string);
     }
 
     /**

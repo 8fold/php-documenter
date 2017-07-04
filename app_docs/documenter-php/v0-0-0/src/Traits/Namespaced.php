@@ -2,6 +2,8 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+
 trait Namespaced
 {
     private $namespaceParts = [];
@@ -33,17 +35,45 @@ trait Namespaced
         return $this->reflector->getShortName();
     }
 
+    /**
+     * [slug description]
+     * @return [type] [description]
+     *
+     * @category Strings
+     */
+    public function slug()
+    {
+        return StringHelpers::slug($this->name);
+    }
+
+    /**
+     * [classString description]
+     * @param  [type] $asHtml [description]
+     * @param  [type] &$build [description]
+     * @return [type]         [description]
+     *
+     * @category Strings
+     */
+    private function displayNameString($asHtml, &$build, $keyword = 'class')
+    {
+        $build[] = StringHelpers::displayString($asHtml, $this->name, $keyword);
+    }
+
+    /**
+     * Get the url for the Project Object with this Trait.
+     *
+     * Note: You should create a static private property called
+     * `$urlProjectObjectName`. Ex. `static private $urlProjectObjectName = 'classes';`
+     *
+     * @return [type] [description]
+     *
+     * @category Strings
+     */
     public function url()
     {
         if (strlen($this->url) == 0) {
-            $slugged = [];
-            foreach ($this->namespaceParts() as $part) {
-                $slugged[] = kebab_case($part);
-            }
-            array_shift($slugged);
-            array_shift($slugged);
-            $thisPath = implode('/', $slugged);
-            $this->url = $this->project->url() .'/'. $thisPath;
+            $spaceSlug = StringHelpers::namespaceToSlug($this->space);
+            $this->url = $this->project->url() .'/'. $spaceSlug .'/'. static::$urlProjectObjectName .'/'. $this->slug;
         }
         return $this->url;
     }

@@ -248,9 +248,16 @@ class Project
     }
 
     /**
-     * [objectWithFullName description]
+     * Factory method that returns instantiated project object with given full name.
+     *
+     * For example, if we have a class named `Hello` in namespace `Vendor\World`,
+     * passing `\Vendor\World\Hello` would result in an instance of Class_; thereby,
+     * giving you access to all the details for that class. Further, if we has a trait
+     * with the same name, the result would be an instance of Trait_.
+     *
      * @param  [type] $fullName [description]
-     * @return [type]           [description]
+     *
+     * @return \Eightfold\DocumenterPhp\ProjectObjects\Class_|\Eightfold\DocumenterPhp\ProjectObjects\Trait_|\Eightfold\DocumenterPhp\ProjectObjects\Interface_  Instance of project object
      *
      * @category Get objects
      */

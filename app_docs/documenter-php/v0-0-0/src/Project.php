@@ -10,14 +10,16 @@ use \RecursiveDirectoryIterator;
 use \RecursiveCallbackFilterIterator;
 use \FilesystemIterator;
 
+use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+
 use Eightfold\DocumenterPhp\File;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 
 use Eightfold\DocumenterPhp\ProjectObjects\Class_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 
-use Eightfold\Documenter\Php\Interface_;
 use Eightfold\Documenter\Php\Method;
 use Eightfold\Documenter\Php\Property;
 
@@ -181,7 +183,7 @@ class Project
             foreach ($iterator as $fileInfo) {
                 $file = new File($fileInfo->getPathname());
                 $file->process();
-                $namespaceSlug = $this->namespaceToSlug($file->getNamespace());
+                $namespaceSlug = StringHelpers::namespaceToSlug($file->getNamespace());
                 $files[$namespaceSlug][] = $file;
 
             }
@@ -225,20 +227,62 @@ class Project
     }
 
     /**
-     * [objectWithFullName description]
+     * [traits description]
+     * @return [type] [description]
+     *
+     * @category Get objects
+     */
+    public function traits()
+    {
+        return $this->objectsForPropertyName('traits', Trait_::class, 'getTraits');
+    }
+
+    /**
+     * @category Get objects
+     *
+     * @return [type] [description]
+     */
+    public function interfaces()
+    {
+        return $this->objectsForPropertyName('interfaces', Interface_::class, 'getInterfaces');
+    }
+
+    /**
+     * Factory method that returns instantiated project object with given full name.
+     *
+     * For example, if we have a class named `Hello` in namespace `Vendor\World`,
+     * passing `\Vendor\World\Hello` would result in an instance of Class_; thereby,
+     * giving you access to all the details for that class. Further, if we has a trait
+     * with the same name, the result would be an instance of Trait_.
+     *
      * @param  [type] $fullName [description]
-     * @return [type]           [description]
+     *
+     * @return \Eightfold\DocumenterPhp\ProjectObjects\Class_|\Eightfold\DocumenterPhp\ProjectObjects\Trait_|\Eightfold\DocumenterPhp\ProjectObjects\Interface_|\Something  Instance of project object
      *
      * @category Get objects
      */
     public function objectWithFullName($fullName)
     {
-        $fullNameSlug = $this->namespaceToSlug($fullName);
+        if ($class = $this->objectWithFullNameFromObjects($fullName, $this->classes())) {
+            return $class;
+        }
 
-        // Check classes for `fullNameSlug`.
-        $classes = $this->classes();
-        if (isset($classes[$fullNameSlug])) {
-            return $classes[$fullNameSlug];
+        if ($interface = $this->objectWithFullNameFromObjects($fullName, $this->interfaces())) {
+            return $interface;
+        }
+
+        if ($trait = $this->objectWithFullNameFromObjects($fullName, $this->traits())) {
+            return $trait;
+        }
+
+        return null;
+    }
+
+    private function objectWithFullNameFromObjects($fullName, $objects)
+    {
+        $fullNameSlug = StringHelpers::namespaceToSlug($fullName);
+        if (isset($objects[$fullNameSlug])) {
+            return $objects[$fullNameSlug];
         }
         return null;
     }
@@ -277,7 +321,7 @@ class Project
                             $object = new $classToInstantiate($this, $reflector);
 
                             // Convert namespace (plus class, trait, interface name).
-                            $key = $this->namespaceToSlug($object->fullName);
+                            $key = StringHelpers::namespaceToSlug($object->fullName);
 
                             // Add instance to objects array.
                             $objects[$key] = $object;
@@ -326,35 +370,6 @@ class Project
             $this->{$propertyName} = $build;
         }
         return $this->{$propertyName};
-    }
-
-    /**
-     * [traits description]
-     * @return [type] [description]
-     *
-     * @category Files
-     */
-    public function traits()
-    {
-        return $this->objectsForPropertyName('traits', Trait_::class, 'getTraits');
-    }
-
-    /**
-     * Converts backslashes to hyphens and converts string to all lower case.
-     *
-     * @param  [type] $namespace [description]
-     * @return [type]            [description]
-     *
-     * @category Utilities
-     */
-    private function namespaceToSlug($namespace)
-    {
-        $parts = explode('\\', $namespace);
-        if (strlen($parts[0]) == 0) {
-            array_shift($parts);
-            $namespace = implode('\\', $parts);
-        }
-        return strtolower(str_replace('\\', '-', $namespace));
     }
 
     /**
@@ -428,13 +443,13 @@ class Project
      *
      * @category Utilities
      */
-    private function versions($projectSlug)
-    {
-        $projects = $this->projects();
-        if (count($this->versions) == 0 && isset($projects[$projectSlug])) {
-            return $projects[$projectSlug];
+    // private function versions($projectSlug)
+    // {
+    //     $projects = $this->projects();
+    //     if (count($this->versions) == 0 && isset($projects[$projectSlug])) {
+    //         return $projects[$projectSlug];
 
-        }
-        return [];
-    }
+    //     }
+    //     return [];
+    // }
 }

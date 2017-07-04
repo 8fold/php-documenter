@@ -2,9 +2,28 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\Parameter;
+
 trait DocBlocked
 {
     private $docBlock = null;
+
+    static private function paramTagsForDocBlock($docBlock)
+    {
+        return $docBlock->getTagsByName('param');
+    }
+
+    static private function paramTagForVariableName($name, $docBlock)
+    {
+        $paramTag = null;
+        foreach ($docBlock->getTagsByName('param') as $param) {
+            if ($param->getVariableName() == $name) {
+                $paramTag = $param;
+                break;
+            }
+        }
+        return $paramTag;
+    }
 
     /**
      * [category description]

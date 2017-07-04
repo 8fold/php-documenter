@@ -50,13 +50,13 @@ class ProjectTest extends BaseTest
     public function testProjectFiles()
     {
         $project = new Project($this->versionPath());
-        $this->assertTrue($project->totalFiles == 10, 'found files: '. $project->totalFiles);
+        $this->assertTrue($project->totalFiles == 14, 'found files: '. $project->totalFiles);
     }
 
     public function testProjectClasses()
     {
         $project = new Project($this->versionPath());
-        $this->assertTrue(count($project->classes) == 5, 'found classes: '. count($project->classes));
+        $this->assertTrue(count($project->classes) == 9, 'found classes: '. count($project->classes));
     }
 
     public function testProjectTraits()
@@ -82,6 +82,6 @@ class ProjectTest extends BaseTest
     {
         $project = new Project($this->versionPath());
         $objects = $project->classesCategorized;
-        $this->assertTrue(count($objects) == 2, 'found categories: '. count($objects));
+        $this->assertTrue(count($objects) == 3, 'found categories: '. count($objects));
     }
 }
