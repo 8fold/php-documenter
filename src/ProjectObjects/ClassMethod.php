@@ -13,21 +13,7 @@ use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\TypeHint;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
-// use Eightfold\Documenter\Php\File;
-// use Eightfold\Documenter\Php\DocBlock;
-
-// use Eightfold\Documenter\Php\Trait_;
-// use Eightfold\Documenter\Php\Interface_;
-// use Eightfold\Documenter\Php\Parameter;
-
-// use Eightfold\Documenter\Interfaces\HasDeclarations;
-
-// use Eightfold\Documenter\Traits\TraitGroupDocNameParam;
-// use Eightfold\Documenter\Traits\TraitGroupDeclaredStaticAccess;
-
-// use Eightfold\Documenter\Traits\CanBeAbstract;
-// use Eightfold\Documenter\Traits\CanBeFinal;
-// use Eightfold\Documenter\Traits\HighlightableString;
+use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 
 /**
  * @category Symbols
@@ -35,19 +21,14 @@ use Eightfold\DocumenterPhp\Traits\DocBlocked;
 class ClassMethod extends MethodReflector
 {
     use Gettable,
-        DocBlocked;
-
-    private $class = null;
-
-    private $project = null;
-
-    private $reflector = null;
-
-    private $url = '';
+        DocBlocked,
+        ClassSubObject;
 
     private $parameters = [];
 
     private $returnType = null;
+
+    static private $urlProjectObjectName = 'methods';
 
     public function __construct(Class_ $class, MethodReflector $reflector)
     {
@@ -57,15 +38,6 @@ class ClassMethod extends MethodReflector
 
         // Setting `node` on ClassReflector
         $this->node = $this->reflector->getNode();
-    }
-
-    public function url()
-    {
-        if (strlen($this->url) == 0) {
-            $slug = StringHelpers::slug($this->reflector->getShortName());
-            $this->url = $this->class->url .'/methods/'. $slug;
-        }
-        return $this->url;
     }
 
     public function parameters()
@@ -89,11 +61,6 @@ class ClassMethod extends MethodReflector
         return $this->returnType;
     }
 
-    public function name()
-    {
-        return $this->reflector->getShortName();
-    }
-
     private function finalString($asHtml, &$build)
     {
         if ($this->reflector->isFinal()) {
@@ -107,37 +74,6 @@ class ClassMethod extends MethodReflector
                 $build[] = 'final';
 
             }
-        }
-    }
-
-    private function staticString($asHtml, &$build)
-    {
-        if ($this->reflector->isStatic()) {
-            if ($asHtml) {
-                $build[] = Html5Gen::span([
-                        'content' => 'static',
-                        'class' => 'static'
-                    ]);
-
-            } else {
-                $build[] = 'static';
-
-            }
-        }
-    }
-
-    private function accessString($asHtml, &$build)
-    {
-        $access = $this->reflector->getVisibility();
-        if ($asHtml) {
-            $build[] = Html5Gen::span([
-                    'content' => $access,
-                    'class' => 'access'
-                ]);
-
-        } else {
-            $build[] = $access;
-
         }
     }
 

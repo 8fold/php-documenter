@@ -2,10 +2,13 @@
 
 namespace Eightfold\DocumenterPhp\ProjectObjects;
 
+use Eightfold\Html5Gen\Html5Gen;
+
 use phpDocumentor\Reflection\ClassReflector\PropertyReflector;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
+use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 
 /**
  * @category Symbols
@@ -13,11 +16,10 @@ use Eightfold\DocumenterPhp\Traits\DocBlocked;
 class Property extends PropertyReflector
 {
     use Gettable,
-        DocBlocked;
+        DocBlocked,
+        ClassSubObject;
 
-    private $class = null;
-
-    private $reflector = null;
+    static private $urlProjectObjectName = 'properties';
 
     public function __construct(Class_ $class, PropertyReflector $reflector)
     {
@@ -26,5 +28,27 @@ class Property extends PropertyReflector
 
         // Setting `node` on ClassReflector
         $this->node = $this->reflector->getNode();
+    }
+
+    public function largeDeclaration($asHtml = true, $withLink = true)
+    {
+        $build = [];
+        // $this->finalString($asHtml, $build);
+        $this->staticString($asHtml, $build);
+        $this->accessString($asHtml, $build);
+        // $this->functionString($asHtml, $build);
+        $build[] = '$'. $this->name;
+        // $this->parameterString($asHtml, $build);
+        // $this->returnTypeString($asHtml, $build);
+
+        $build = implode(' ', $build);
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $build,
+                'href' => $this->url()
+            ]);
+        }
+        return $build;
     }
 }

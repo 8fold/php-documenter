@@ -52,6 +52,16 @@ class ClassTest extends BaseTest
         $this->assertTrue(count($object->properties) == 11, 'properties found: '. count($object->properties));
     }
 
+    public function testClassPropertyLargeDeclaration()
+    {
+        $project = new Project($this->versionPath());
+        $object = $project->objectWithFullName(Project::class);
+        $prop = $object->propertyWithName('path');
+        $declaration = $prop->largeDeclaration();
+        $expected = '<a class="call-signature" href="/documenter-php/v0-0-0/eightfold-documenterphp/classes/project/properties/path"><span class="access">private</span> $path</a>';
+        $this->assertTrue($expected == $declaration, 'declaration: '. $declaration);
+    }
+
     public function testClassClassLargeDeclaration()
     {
         $project = new Project($this->versionPath());

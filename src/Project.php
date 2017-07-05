@@ -27,6 +27,13 @@ class Project
 {
     use Gettable;
 
+    /**
+     * The file directory containing the project version you want to display.
+     *
+     * ex. [...] /app_docs/documenter-php/v1-0-0
+     *
+     * @var string
+     */
     private $path = '';
 
     private $basePath = '';
