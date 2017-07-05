@@ -8,6 +8,7 @@ use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 use phpDocumentor\Reflection\ClassReflector;
 
 use Eightfold\DocumenterPhp\Project;
+use Eightfold\DocumenterPhp\ClassExternal;
 use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
 use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
@@ -57,7 +58,11 @@ class Class_ extends ClassReflector implements HasDeclarations
 
     private $_properties = [];
 
+    protected $propertiesCategorized = [];
+
     private $_methods = [];
+
+    protected $methodsCategorized = [];
 
     public function __construct(Project $project, ClassReflector $reflector)
     {
@@ -78,6 +83,35 @@ class Class_ extends ClassReflector implements HasDeclarations
         return $this->reflector->getNode()->isAbstract();
     }
 
+    public function isInProjectSpace()
+    {
+        return true;
+    }
+
+    public function parent()
+    {
+        $extends = $this->node->extends;
+        if (is_null($extends)) {
+            return null;
+        }
+
+        $parentNamespace = implode('\\', $extends->parts);
+        if ($parentClass = $this->project->objectWithFullName($parentNamespace)) {
+            return $parentClass;
+        }
+        return new ClassExternal($extends->parts);
+    }
+
+    private function parentRecursive($object, $objects = [])
+    {
+        $objects[] = $object;
+        $parent = $object->parent();
+        if (!is_null($parent)) {
+            return $this->parentRecursive($parent, $objects);
+        }
+        return array_reverse($objects);
+    }
+
     private function interfaces()
     {
         return $this->objectsForPropertyName('interfaces', Interface_::class, $this->getInterfaces());
@@ -93,6 +127,11 @@ class Class_ extends ClassReflector implements HasDeclarations
         return $this->symbolsForProperty('_properties', Property::class, 'getProperties');
     }
 
+    private function propertiesCategorized()
+    {
+        return $this->getCategorized('propertiesCategorized', $this->properties(), 'properties');
+    }
+
     public function propertyWithName($name)
     {
         return $this->symbolWithName('properties', $name);
@@ -103,9 +142,19 @@ class Class_ extends ClassReflector implements HasDeclarations
         return $this->symbolsForProperty('_methods', ClassMethod::class, 'getMethods');
     }
 
+    private function methodsCategorized()
+    {
+        return $this->getCategorized('methodsCategorized', $this->methods());
+    }
+
     public function methodWithName($name)
     {
         return $this->symbolWithName('methods', $name);
+    }
+
+    public function symbolsCategorized()
+    {
+        return array_merge_recursive($this->propertiesCategorized(), $this->methodsCategorized());
     }
 
     private function symbolsForProperty($instanceProperty, $classToInstantiate, $reflectorMethodName)
@@ -118,6 +167,95 @@ class Class_ extends ClassReflector implements HasDeclarations
             $this->{$instanceProperty} = $return;
         }
         return $this->{$instanceProperty};
+    }
+
+    private function getCategorized($propertyName, $symbols, $symbolType = 'methods')
+    {
+        if (count($this->{$propertyName}) == 0) {
+            $staticPublic = 0;
+            $staticProtected = 0;
+            $staticPrivate = 0;
+            $public = 0;
+            $protected = 0;
+            $private = 0;
+            $build = [];
+            foreach ($symbols as $symbol) {
+                $category = (strlen($symbol->category()) > 0)
+                    ? $symbol->category()
+                    : 'NO_CATEGORY';
+                $accessAndType = '';
+                if ($this->symbolIsStatic($symbol) && $this->symbolIsPublic($symbol)) {
+                    $accessAndType = 'static_public';
+                    $staticPublic++;
+
+                } elseif ($this->symbolIsStatic($symbol) && $this->symbolIsProtected($symbol)) {
+                    $accessAndType = 'static_protected';
+                    $staticProtected++;
+
+                } elseif ($this->symbolIsStatic($symbol) && $this->symbolIsPrivate($symbol)) {
+                    $accessAndType = 'static_private';
+                    $staticPrivate++;
+
+                } elseif ($this->symbolIsProtected($symbol)) {
+                    $accessAndType = 'protected';
+                    $protected++;
+
+                } elseif ($this->symbolIsPrivate($symbol)) {
+                    $accessAndType = 'private';
+                    $private++;
+
+                } else {
+                    $accessAndType = 'public';
+                    $public++;
+
+                }
+                $build[$category][$symbolType][$accessAndType][$symbol->name()] = $symbol;
+            }
+
+            if ($public == 0 && $protected == 0 && $private == 0 && $staticPublic == 0 && $staticProtected == 0 && $staticPrivate == 0) {
+                $this->{$propertyName} = [];
+
+            } else {
+                foreach ($build as $category => $accessLevels) {
+                    foreach ($accessLevels as $access => $symbolTypes) {
+                        foreach ($symbolTypes as $symbolType => $symbols);
+                        ksort($symbols);
+                        $build[$category][$access][$symbolType] = $symbols;
+
+                    }
+                }
+                $this->{$propertyName} = $build;
+
+            }
+        }
+        return $this->{$propertyName};
+    }
+
+    private function symbolIsStatic($symbol)
+    {
+        return $this->symbolIs($symbol, 'isStatic');
+    }
+
+    private function symbolIsPublic($symbol)
+    {
+        return $this->symbolIs($symbol, 'isPublic');
+    }
+
+    private function symbolIsProtected($symbol)
+    {
+        return $this->symbolIs($symbol, 'isProtected');
+    }
+
+    private function symbolIsPrivate($symbol)
+    {
+        return $this->symbolIs($symbol, 'isPrivate');
+    }
+
+    private function symbolIs($symbol, $functionName)
+    {
+        // dump($functionName);
+        // dump($symbol);
+        return (method_exists($symbol, $functionName) && $symbol->{$functionName}());
     }
 
     public function symbolWithName($instanceMethod, $name)

@@ -33,13 +33,9 @@ class Property extends PropertyReflector
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        // $this->finalString($asHtml, $build);
         $this->staticString($asHtml, $build);
         $this->accessString($asHtml, $build);
-        // $this->functionString($asHtml, $build);
         $build[] = '$'. $this->name;
-        // $this->parameterString($asHtml, $build);
-        // $this->returnTypeString($asHtml, $build);
 
         $build = implode(' ', $build);
         if ($withLink) {
@@ -50,5 +46,10 @@ class Property extends PropertyReflector
             ]);
         }
         return $build;
+    }
+
+    public function isStatic()
+    {
+        return $this->reflector->isStatic();
     }
 }

@@ -54,7 +54,11 @@ class Project
 
     private $traits = [];
 
+    private $traitsCategorized = [];
+
     private $interfaces = [];
+
+    private $interfacesCategorized = [];
 
     /**
      * Add all the project paths to an array passed by reference.
@@ -129,10 +133,10 @@ class Project
      *
      * @param string $path   The complete path to the project version.
      * @param string $root   The root directory of the directory to process within the
-     *                       project.
+     *                       project. No starting slash.
      * @param array $ignore  Array of directory names to ignore.
      */
-    public function __construct($path, $root = '/src', $ignore = [])
+    public function __construct($path, $root = 'src', $ignore = [])
     {
         // Path should be [...] /projectSlug/versionSlug
         $this->path = $path;
@@ -174,6 +178,14 @@ class Project
     public function url()
     {
         return '/'. $this->projectSlug .'/'. $this->versionSlug;
+    }
+
+    public function urlForVersion($version = '')
+    {
+        if (strlen($version) > 0) {
+            $version = str_replace('.', '-', $version);
+        }
+        return '/'. $this->projectSlug .'/'. $version;
     }
 
     /**
@@ -244,6 +256,11 @@ class Project
         return $this->objectsForPropertyName('traits', Trait_::class, 'getTraits');
     }
 
+    public function traitsCategorized()
+    {
+        return $this->objectsOrdered($this->traits(), 'traitsCategorized');
+    }
+
     /**
      * @category Get objects
      *
@@ -252,6 +269,11 @@ class Project
     public function interfaces()
     {
         return $this->objectsForPropertyName('interfaces', Interface_::class, 'getInterfaces');
+    }
+
+    public function interfacesCategorized()
+    {
+        return $this->objectsOrdered($this->interfaces(), 'interfacesCategorized');
     }
 
     /**
@@ -283,6 +305,22 @@ class Project
         }
 
         return null;
+    }
+
+    public function objectWithPath($path)
+    {
+        $replacements = [
+            '/classes/'    => '-',
+            '/traits/'     => '-',
+            '/interfaces/' => '-',
+            '/properties/' => '-',
+            '/methods/'    => '-',
+            '/'            => '-'
+        ];
+        $replace = array_keys($replacements);
+        $with = array_values($replacements);
+        $slug = str_replace($replace, $with, $path);
+        return $this->objectWithFullName($slug);
     }
 
     private function objectWithFullNameFromObjects($fullName, $objects)
@@ -328,7 +366,7 @@ class Project
                             $object = new $classToInstantiate($this, $reflector);
 
                             // Convert namespace (plus class, trait, interface name).
-                            $key = StringHelpers::namespaceToSlug($object->fullName);
+                            $key = StringHelpers::namespaceToSlug(str_replace('_', '', $object->fullName));
 
                             // Add instance to objects array.
                             $objects[$key] = $object;

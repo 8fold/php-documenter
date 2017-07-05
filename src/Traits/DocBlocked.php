@@ -8,6 +8,8 @@ trait DocBlocked
 {
     private $docBlock = null;
 
+    private $deprecatedDescription = '';
+
     static private function paramTagsForDocBlock($docBlock)
     {
         return $docBlock->getTagsByName('param');
@@ -15,6 +17,10 @@ trait DocBlocked
 
     static private function paramTagForVariableName($name, $docBlock)
     {
+        if (is_null($docBlock)) {
+            return null;
+        }
+
         $paramTag = null;
         foreach ($docBlock->getTagsByName('param') as $param) {
             if ($param->getVariableName() == $name) {
@@ -43,6 +49,40 @@ trait DocBlocked
             return $category->getDescription();
         }
         return null;
+    }
+
+    public function isDeprecated()
+    {
+        if (!is_null($this->docBlock()) && $this->docBlock()->hasTag('deprecated')) {
+            return true;
+        }
+        return false;
+    }
+
+    public function deprecatedDescription()
+    {
+        if (strlen($this->deprecatedDescription) == 0 && $this->isDeprecated()) {
+            $docTag = $this->docBlock()->getTagsByName('deprecated');
+            $docTag = $docTag[0];
+            $this->deprecatedDescription = $docTag->getDocBlock()->getShortDescription();
+        }
+        return $this->deprecatedDescription;
+    }
+
+    public function discussion()
+    {
+        if (!is_null($this->docBlock())) {
+            return $this->docBlock()->getLongDescription();
+        }
+        return '';
+    }
+
+    public function shortDescription()
+    {
+        if (!is_null($this->docBlock())) {
+            return $this->docBlock()->getShortDescription();
+        }
+        return '';
     }
 
     /**

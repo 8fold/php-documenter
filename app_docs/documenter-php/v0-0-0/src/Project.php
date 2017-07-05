@@ -169,6 +169,14 @@ class Project
         return '/'. $this->projectSlug .'/'. $this->versionSlug;
     }
 
+    public function urlForVersion($version = '')
+    {
+        if (strlen($version) > 0) {
+            $version = 'v'. str_replace('.', '-', $version);
+        }
+        return '/'. $this->projectSlug .'/'. $version;
+    }
+
     /**
      * [files description]
      * @return [type] [description]

@@ -65,7 +65,8 @@ class TypeHint extends ParamTag
             $content = implode('|', $displayStrings);
 
         } elseif (strpos($content, '[type]')) {
-            $content = str_replace('\\Eightfold\\DocumenterPhp\\', '', $content);
+            $parts = explode('\\', $content);
+            $content = array_pop($parts);
 
         }
 

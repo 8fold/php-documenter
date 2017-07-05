@@ -10,6 +10,7 @@ use phpDocumentor\Reflection\TraitReflector;
 use Eightfold\DocumenterPhp\Project;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
+use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
 
 /**
@@ -18,6 +19,7 @@ use Eightfold\DocumenterPhp\Traits\Namespaced;
 class Trait_ extends TraitReflector
 {
     use Gettable,
+        DocBlocked,
         Namespaced;
 
     static private $urlProjectObjectName = 'traits';
