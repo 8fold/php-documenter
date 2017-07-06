@@ -23,17 +23,6 @@ trait HasObjects
     }
 
     /**
-     * [traits description]
-     * @return [type] [description]
-     *
-     * @category Get traits for class
-     */
-    public function traits()
-    {
-        return $this->objectsForPropertyName('traits', Trait_::class, $this->reflector->getTraits());
-    }
-
-    /**
      * [propertyWithSlug description]
      * @param  [type] $slugName [description]
      * @return [type]           [description]

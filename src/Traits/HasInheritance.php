@@ -2,6 +2,8 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\DocumenterPhp\Class_;
+use Eightfold\DocumenterPhp\Interface_;
 use Eightfold\DocumenterPhp\ClassExternal;
 
 trait HasInheritance
@@ -14,8 +16,15 @@ trait HasInheritance
      */
     public function parent()
     {
-        $parentNamespace = $this->reflector->getParentClass();
-        // $extends = $this->node->extends;
+        $parentNamespace = '';
+        if (static::class == Class_::class) {
+            $parentNamespace = $this->reflector->getParentClass();
+
+        } elseif (static::class == Interface_::class) {
+            $parentNamespace = $this->reflector->getParentClass();
+
+        }
+
         if (strlen($parentNamespace) == 0) {
             return null;
         }

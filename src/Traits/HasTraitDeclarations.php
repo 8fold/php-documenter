@@ -5,6 +5,8 @@ namespace Eightfold\DocumenterPhp\Traits;
 use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 
+use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+
 trait HasTraitDeclarations
 {
     /**
@@ -80,6 +82,10 @@ trait HasTraitDeclarations
         if ($showKeyword) {
             return $string;
         }
-        return str_replace('trait ', '', $string);
+
+        if (static::class == Trait_::class) {
+            return str_replace('trait ', '', $string);
+        }
+        return str_replace('interface ', '', $string);
     }
 }

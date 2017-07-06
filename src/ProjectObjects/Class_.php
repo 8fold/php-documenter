@@ -21,6 +21,7 @@ use Eightfold\DocumenterPhp\Traits\HasSymbols;
 use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
 use Eightfold\DocumenterPhp\Traits\HasMethods;
 use Eightfold\DocumenterPhp\Traits\HasProperties;
+use Eightfold\DocumenterPhp\Traits\HasTraits;
 use Eightfold\DocumenterPhp\Traits\HasObjects;
 use Eightfold\DocumenterPhp\Traits\HasClassDefinitionsList;
 use Eightfold\DocumenterPhp\Traits\HasInheritance;
@@ -40,6 +41,7 @@ class Class_ extends ClassReflector implements HasDeclarations
         DefinesSymbols,
         HasMethods,
         HasProperties,
+        HasTraits,
         HasObjects,
         HasClassDefinitionsList,
         HasInheritance;
