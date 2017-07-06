@@ -238,31 +238,6 @@ class Class_ extends ClassReflector
         return $this->{$propertyName};
     }
 
-    private function symbolIsStatic($symbol)
-    {
-        return $this->symbolIs($symbol, 'isStatic');
-    }
-
-    private function symbolIsPublic($symbol)
-    {
-        return $this->symbolIs($symbol, 'isPublic');
-    }
-
-    private function symbolIsProtected($symbol)
-    {
-        return $this->symbolIs($symbol, 'isProtected');
-    }
-
-    private function symbolIsPrivate($symbol)
-    {
-        return $this->symbolIs($symbol, 'isPrivate');
-    }
-
-    private function symbolIs($symbol, $functionName)
-    {
-        return (method_exists($symbol, $functionName) && $symbol->reflector->{$functionName}());
-    }
-
     public function symbolWithName($instanceMethod, $name)
     {
         foreach ($this->$instanceMethod() as $symbol) {
