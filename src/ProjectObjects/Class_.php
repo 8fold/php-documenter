@@ -214,12 +214,10 @@ class Class_ extends ClassReflector
                 $accessAndType = '';
                 if ($symbol->reflector->isStatic() && $access = $symbol->reflector->getVisibility()) {
                     $accessAndType = 'static_'. $access;
-                    $count++;
 
                 } else {
-                    // Default is public.
+                    // Default is public
                     $accessAndType = $symbol->reflector->getVisibility();;
-                    $count++;
 
                 }
 
