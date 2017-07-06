@@ -93,14 +93,12 @@ trait DocBlocked
      */
     public function docBlock()
     {
-        if (is_null($this->docBlock)) {
-            if (is_a($this, Parameter::class)) {
-                $this->docBlock = $this->method->docBlock();
+        if (is_null($this->docBlock) && is_a($this, Parameter::class)) {
+            $this->docBlock = $this->method->docBlock();
 
-            } else {
-                $this->docBlock = $this->reflector->getDocBlock();
+        } elseif (is_null($this->docBlock)) {
+            $this->docBlock = $this->reflector->getDocBlock();
 
-            }
         }
         return $this->docBlock;
     }

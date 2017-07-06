@@ -14,6 +14,7 @@ use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\TypeHint;
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
+use Eightfold\DocumenterPhp\Traits\Sluggable;
 
 /**
  * @category Symbols
@@ -22,6 +23,7 @@ class ClassMethod extends MethodReflector
 {
     use Gettable,
         DocBlocked,
+        Sluggable,
         ClassSubObject;
 
     private $parameters = [];
@@ -51,7 +53,7 @@ class ClassMethod extends MethodReflector
         return $this->parameters;
     }
 
-    private function returnType()
+    public function returnType()
     {
         if (is_null($this->returnType) && !is_null($this->docBlock()) && $this->docBlock()->hasTag('return')) {
             $tag = $this->docBlock()->getTagsByName('return')[0];
@@ -139,5 +141,60 @@ class ClassMethod extends MethodReflector
             ]);
         }
         return $built;
+    }
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    {
+        $build = [];
+        $this->finalString($asHtml, $build);
+        $this->staticString($asHtml, $build);
+        $this->accessString($asHtml, $build);
+        $this->functionString($asHtml, $build);
+        $build[] = $this->name;
+        $base = implode(' ', $build);
+        $base .= '()';
+
+        $replace = [
+            '>abstract<',
+            'static',
+            'final',
+            'private',
+            'protected',
+            'public',
+            'function',
+            'class'
+        ];
+        $with = [
+            '><',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        if ($showKeywords) {
+            $with = [
+                '>abs<',
+                'stat',
+                'fin',
+                'priv',
+                'prot',
+                'pub',
+                'func',
+                'class'
+            ];
+        }
+
+        $build = str_replace($replace, $with, $base);
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $build,
+                'href' => $this->url()
+            ]);
+        }
+        return $build;
     }
 }

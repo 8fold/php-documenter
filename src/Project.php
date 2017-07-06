@@ -10,11 +10,14 @@ use \RecursiveDirectoryIterator;
 use \RecursiveCallbackFilterIterator;
 use \FilesystemIterator;
 
+use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+use League\CommonMark\CommonMarkConverter;
 
 use Eightfold\DocumenterPhp\File;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
+use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
 
 use Eightfold\DocumenterPhp\ProjectObjects\Class_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
@@ -25,7 +28,8 @@ use Eightfold\Documenter\Php\Property;
 
 class Project
 {
-    use Gettable;
+    use Gettable,
+        DefinesSymbols;
 
     /**
      * The file directory containing the project version you want to display.
@@ -201,7 +205,6 @@ class Project
             $files = [];
             foreach ($iterator as $fileInfo) {
                 $file = new File($fileInfo->getPathname());
-                $file->process();
                 $namespaceSlug = StringHelpers::namespaceToSlug($file->getNamespace());
                 $files[$namespaceSlug][] = $file;
 
@@ -366,7 +369,7 @@ class Project
                             $object = new $classToInstantiate($this, $reflector);
 
                             // Convert namespace (plus class, trait, interface name).
-                            $key = StringHelpers::namespaceToSlug(str_replace('_', '', $object->fullName));
+                            $key = StringHelpers::namespaceToSlug($object->fullName);
 
                             // Add instance to objects array.
                             $objects[$key] = $object;
@@ -462,39 +465,21 @@ class Project
         return $iterator;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * Get versions for a specified project.
+     * @todo Make this an interface so it's more explicit.
      *
-     * @param  [type] $projectSlug [description]
-     * @return [type]              [description]
-     *
-     * @category Utilities
+     * @param  [type] $category   [description]
+     * @param  [type] $symbols    [description]
+     * @param  [type] $symbolType [description]
+     * @param  [type] $config     [description]
+     * @param  [type] &$return    [description]
+     * @return [type]             [description]
      */
-    // private function versions($projectSlug)
-    // {
-    //     $projects = $this->projects();
-    //     if (count($this->versions) == 0 && isset($projects[$projectSlug])) {
-    //         return $projects[$projectSlug];
-
-    //     }
-    //     return [];
-    // }
+    static protected function processSymbolTypesForCategory($category, $symbols, $symbolType, $config, &$return)
+    {
+        if (isset($symbols[$category][$symbolType])) {
+            $symbolsToProcess = $symbols[$category][$symbolType];
+            $return[] = static::processSymbolsDefinitionForCategory($category, $symbolsToProcess, $config);
+        }
+    }
 }

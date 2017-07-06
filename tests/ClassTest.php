@@ -42,7 +42,7 @@ class ClassTest extends BaseTest
     {
         $project = new Project($this->versionPath());
         $object = $project->objectWithFullName(Project::class);
-        $this->assertTrue(count($object->methods) == 20, 'methods found: '. count($object->methods));
+        $this->assertTrue(count($object->methods) == 21, 'methods found: '. count($object->methods));
     }
 
     public function testProjectProperties()

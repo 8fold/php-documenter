@@ -2,6 +2,8 @@
 
 namespace Eightfold\DocumenterPhp;
 
+use Eightfold\DocumenterPhp\Traits\Gettable;
+
 /**
  * Represents a `class` outside the current project.
  *
@@ -14,6 +16,8 @@ namespace Eightfold\DocumenterPhp;
  */
 class ClassExternal
 {
+    use Gettable;
+
     /**
      * Copy of `$namespaceParts` for caching.
      *

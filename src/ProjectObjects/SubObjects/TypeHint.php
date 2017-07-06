@@ -77,4 +77,14 @@ class TypeHint extends ParamTag
                 ])
             : $this->_type;
     }
+
+    public function discussion()
+    {
+        return $this->docTag->getContent();
+    }
+
+    public function shortDescription()
+    {
+        return $this->discussion();
+    }
 }

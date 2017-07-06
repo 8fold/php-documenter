@@ -65,7 +65,7 @@ class Parameter extends ArgumentReflector
         return $this->types;
     }
 
-    private function typeString($asHtml, &$build)
+    private function typeString($asHtml, &$build = [])
     {
         $types = $this->types();
         $typeStrings = [];
@@ -73,7 +73,9 @@ class Parameter extends ArgumentReflector
             $typeStrings[] = $type->displayString($asHtml);
 
         }
-        $build[] = implode('|', $typeStrings);
+        $complete = implode('|', $typeStrings);
+        $build[] = $complete;
+        return $complete;
     }
 
     private function nameString($asHtml, &$build)
@@ -105,6 +107,13 @@ class Parameter extends ArgumentReflector
         $this->nameString($asHtml, $build);
         $this->defaultString($asHtml, $build);
         return implode(' ', $build);
+    }
 
+    public function mediumDeclaration($asHtml = true, $withLink = true)
+    {
+        $build = [];
+        $this->typeString($asHtml, $build);
+        $this->nameString($asHtml, $build);
+        return implode(' ', $build);
     }
 }

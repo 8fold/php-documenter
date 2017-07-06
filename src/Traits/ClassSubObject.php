@@ -13,18 +13,6 @@ trait ClassSubObject
 
     private $reflector = null;
 
-    private $url = '';
-
-    public function url()
-    {
-        if (strlen($this->url) == 0) {
-            $slug = StringHelpers::slug($this->reflector->getShortName());
-            $this->url = $this->class->url .'/'. static::$urlProjectObjectName .'/'. $slug;
-        }
-        return $this->url;
-    }
-
-
     public function name()
     {
         return $this->reflector->getShortName();
@@ -59,5 +47,10 @@ trait ClassSubObject
             $build[] = $access;
 
         }
+    }
+
+    public function declaredBy()
+    {
+        return $this->class;
     }
 }

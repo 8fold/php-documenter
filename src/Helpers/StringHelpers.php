@@ -38,7 +38,7 @@ class StringHelpers
     static public function namespaceToSlug($fullName)
     {
         $fullName = static::sanitizedNamespace($fullName);
-        return strtolower(str_replace('\\', '-', $fullName));
+        return strtolower(str_replace(['\\', '_'], ['-', ''], $fullName));
     }
 
     static public function sanitizedNamespace($fullName)
