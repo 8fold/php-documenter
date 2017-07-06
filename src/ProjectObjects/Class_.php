@@ -24,6 +24,8 @@ use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
 use Eightfold\DocumenterPhp\Traits\HasMethods;
 use Eightfold\DocumenterPhp\Traits\HasProperties;
 use Eightfold\DocumenterPhp\Traits\HasObjects;
+use Eightfold\DocumenterPhp\Traits\HasClassDefinitionsList;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
 
 /**
  * Represents a `class` in a project.
@@ -39,7 +41,10 @@ class Class_ extends ClassReflector
         HasSymbols,
         DefinesSymbols,
         HasMethods,
-        HasProperties;
+        HasProperties,
+        HasObjects,
+        HasClassDefinitionsList,
+        HasInheritance;
 
     static private $urlProjectObjectName = 'classes';
 
@@ -75,55 +80,6 @@ class Class_ extends ClassReflector
     public function project()
     {
         return $this->project;
-    }
-
-    /**
-     * [parent description]
-     * @return [type] [description]
-     *
-     * @category Get parent class
-     */
-    public function parent()
-    {
-        $extends = $this->node->extends;
-        if (is_null($extends)) {
-            return null;
-        }
-
-        $parentNamespace = implode('\\', $extends->parts);
-        if ($parentClass = $this->project->objectWithFullName($parentNamespace)) {
-            return $parentClass;
-        }
-        return new ClassExternal($extends->parts);
-    }
-
-    /**
-     * [inheritance description]
-     * @return [type] [description]
-     *
-     * @category Get parent class
-     */
-    public function inheritance()
-    {
-        return $this->parentRecursive($this);
-    }
-
-    /**
-     * [parentRecursive description]
-     * @param  [type] $object  [description]
-     * @param  array  $objects [description]
-     * @return [type]          [description]
-     *
-     * @category Get parent class
-     */
-    private function parentRecursive($object, $objects = [])
-    {
-        $objects[] = $object;
-        $parent = $object->parent();
-        if (!is_null($parent)) {
-            return $this->parentRecursive($parent, $objects);
-        }
-        return array_reverse($objects);
     }
 
     /**
@@ -417,49 +373,5 @@ class Class_ extends ClassReflector
 
         }
         return '';
-    }
-
-    /**
-     * [definesSymbolsDefaultConfig description]
-     * @return [type] [description]
-     *
-     */
-    static protected function definesSymbolsDefaultConfig()
-    {
-        return [
-            'symbolOrder' => [
-                'properties',
-                'methods'
-            ],
-            'accessOrder' => [
-                'public',
-                'protected',
-                'private',
-                'static_public',
-                'static_protected',
-                'static_private'
-            ]
-        ];
-    }
-
-    /**
-     * [processSymbolTypeForCategory description]
-     * @param  [type] $category   [description]
-     * @param  [type] $symbols    [description]
-     * @param  [type] $symbolType [description]
-     * @param  [type] $config     [description]
-     * @param  [type] &$return    [description]
-     * @return [type]             [description]
-     */
-    protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return)
-    {
-        if (count($config['accessOrder']) > 0) {
-            foreach ($config['accessOrder'] as $access) {
-                if (isset($symbols[$access])) {
-                    $symbolsToProcess = $symbols[$access];
-                    $return[] = $this->processSymbolsDefinitionForCategory($category, $symbolsToProcess, $config);
-                }
-            }
-        }
     }
 }

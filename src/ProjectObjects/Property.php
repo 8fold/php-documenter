@@ -23,7 +23,12 @@ class Property extends PropertyReflector
 
     static private $urlProjectObjectName = 'properties';
 
-    public function __construct(Class_ $class, PropertyReflector $reflector)
+    /**
+     * [__construct description]
+     * @param \Eightfold\DocumenterPhp\ProjectObjects\Class_|\Eightfold\DocumenterPhp\ProjectObjects\Trait_|\Eightfold\DocumenterPhp\ProjectObjects\Interface_            $class     [description]
+     * @param PropertyReflector $reflector [description]
+     */
+    public function __construct($class, PropertyReflector $reflector)
     {
         $this->class = $class;
         $this->reflector = $reflector;

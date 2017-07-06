@@ -32,7 +32,12 @@ class ClassMethod extends MethodReflector
 
     static private $urlProjectObjectName = 'methods';
 
-    public function __construct(Class_ $class, MethodReflector $reflector)
+    /**
+     * [__construct description]
+     * @param \Eightfold\DocumenterPhp\ProjectObjects\Class_|\Eightfold\DocumenterPhp\ProjectObjects\Trait_|\Eightfold\DocumenterPhp\ProjectObjects\Interface_            $class     [description]
+     * @param PropertyReflector $reflector [description]
+     */
+    public function __construct($class, MethodReflector $reflector)
     {
         $this->class = $class;
         $this->project = $this->class->project;

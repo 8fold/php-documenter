@@ -2,6 +2,7 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 
 use Eightfold\DocumenterPhp\ProjectObjects\Class_;
@@ -45,5 +46,45 @@ trait Sluggable
         $build[] = static::$urlProjectObjectName;
         $build[] = $this->slug;
         return implode('/', $build);
+    }
+
+    public function objectTypeTitle($wrapper = 'h1')
+    {
+        $deprecatedString = '';
+        if ($this->isDeprecated) {
+            $deprecatedString = Html5Gen::span([
+                    'content' => 'Deprecated',
+                    'class' => 'deprecated'
+                ]);
+        }
+
+        $type = '';
+        if ($this->name == '__construct') {
+            $type = 'Initializer';
+
+        } else {
+            $name = static::class;
+            $parts = explode('\\', $name);
+            $type = str_replace('_', '', array_pop($parts));
+        }
+
+        $typeString = Html5Gen::span([
+                'content' => $type,
+                'class' => 'method-type'
+            ]);
+
+        $content = [
+            $deprecatedString,
+            $typeString,
+            $this->microDeclaration(false, false, false)
+        ];
+
+        $content = implode(Html5Gen::br(), $content);
+
+        return Html5Gen::$wrapper([
+                'content' => [
+                    $content
+                ]
+            ]);
     }
 }

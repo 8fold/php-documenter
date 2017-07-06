@@ -18,16 +18,25 @@ use Eightfold\DocumenterPhp\Traits\DocBlocked;
 class Interface_ extends InterfaceReflector
 {
     use Gettable,
+        DocBlocked,
         Namespaced,
-        DocBlocked;
+        Sluggable,
+        HasSymbols,
+        DefinesSymbols,
+        HasMethods,
+        HasProperties,
+        HasObjects,
+        HasClassDefinitionsList,
+        HasInheritance,
+        HasTraitDeclarations;
 
     static private $urlProjectObjectName = 'interfaces';
 
-    private $reflector = null;
-
     private $project = null;
 
-    public function __construct(Project $project, InterfaceReflector $reflector)
+    private $reflector = null;
+
+    public function __construct(Project $project, TraitReflector $reflector)
     {
         $this->project = $project;
         $this->reflector = $reflector;
@@ -36,71 +45,19 @@ class Interface_ extends InterfaceReflector
         $this->node = $this->reflector->getNode();
     }
 
-    /**
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function largeDeclaration($asHtml = true, $withLink = true)
+    public function isInProjectSpace()
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return true;
     }
 
     /**
-     * See microDeclaration().
-     *
+     * [symbolsCategorized description]
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Get symbols for class
      */
-    public function mediumDeclaration($asHtml = true, $withLink = true)
+    public function symbolsCategorized()
     {
-        return $this->microDeclaration($asHtml, $withLink);
-    }
-
-    /**
-     *
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function smallDeclaration($asHtml = true, $withLink = true)
-    {
-        return $this->microDeclaration($asHtml, $withLink);
-    }
-
-    /**
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function miniDeclaration($asHtml = true, $withLink = true)
-    {
-        return $this->microDeclaration($asHtml, $withLink);
-    }
-
-    /**
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
-    {
-        $build = [];
-        $keyword = 'interface';
-        $this->displayNameString($asHtml, $build, $keyword);
-        $string = implode(' ', $build);
-        if ($showKeyword) {
-            return $string;
-        }
-        return str_replace($keyword .' ', $string);
+        return $this->methodsCategorized();
     }
 }

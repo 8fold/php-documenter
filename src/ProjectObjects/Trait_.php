@@ -16,6 +16,11 @@ use Eightfold\DocumenterPhp\Traits\Sluggable;
 use Eightfold\DocumenterPhp\Traits\HasSymbols;
 use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
 use Eightfold\DocumenterPhp\Traits\HasMethods;
+use Eightfold\DocumenterPhp\Traits\HasProperties;
+use Eightfold\DocumenterPhp\Traits\HasObjects;
+use Eightfold\DocumenterPhp\Traits\HasClassDefinitionsList;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
+use Eightfold\DocumenterPhp\Traits\HasTraitDeclarations;
 
 /**
  * @category Project object
@@ -25,7 +30,15 @@ class Trait_ extends TraitReflector
     use Gettable,
         DocBlocked,
         Namespaced,
-        Sluggable;
+        Sluggable,
+        HasSymbols,
+        DefinesSymbols,
+        HasMethods,
+        HasProperties,
+        HasObjects,
+        HasClassDefinitionsList,
+        HasInheritance,
+        HasTraitDeclarations;
 
     static private $urlProjectObjectName = 'traits';
 
@@ -42,79 +55,19 @@ class Trait_ extends TraitReflector
         $this->node = $this->reflector->getNode();
     }
 
-    /**
-     * @todo  Update declarations.
-     *
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function largeDeclaration($asHtml = true, $withLink = true)
+    public function isInProjectSpace()
     {
-        return $this->miniDeclaration($asHtml, $withLink);
+        return true;
     }
 
     /**
-     * See microDeclaration().
-     *
+     * [symbolsCategorized description]
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Get symbols for class
      */
-    public function mediumDeclaration($asHtml = true, $withLink = true)
+    public function symbolsCategorized()
     {
-        return $this->miniDeclaration($asHtml, $withLink);
-    }
-
-    /**
-     *
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function smallDeclaration($asHtml = true, $withLink = true)
-    {
-        return $this->miniDeclaration($asHtml, $withLink);
-    }
-
-    /**
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function miniDeclaration($asHtml = true, $withLink = true)
-    {
-        $build = [];
-        $this->displayNameString($asHtml, $build, 'trait');
-        if ($withLink) {
-            return Html5Gen::a([
-                'class' => 'call-signature',
-                'content' => implode(' ',$build),
-                'href' => $this->url()
-            ]);
-        }
-        return implode(' ', $build);
-    }
-
-    /**
-     * See microDeclaration().
-     *
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
-    {
-        $string = $this->miniDeclaration($asHtml, $withLink);
-        if ($showKeyword) {
-            return $string;
-        }
-        return str_replace('trait ', '', $string);
+        return array_merge_recursive($this->propertiesCategorized(), $this->methodsCategorized());
     }
 }

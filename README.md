@@ -15,9 +15,9 @@ Add Documenter to a PHP project and deliver the documentation via web-based APIs
 
 ## Elements, Objects, and Symbols
 
-**Element:** A piece of code that can have associated DocBlock.
-**Object:** An *element* with an independent scope.
-**Symbol:** An *element* with a dependent scope.
+- **Element:** A piece of code that can have associated DocBlock.
+- **Object:** An *element* with an independent scope.
+- **Symbol:** An *element* with a dependent scope.
 
 For example, the following are all "objects":
 
