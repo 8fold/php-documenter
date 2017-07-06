@@ -54,6 +54,8 @@ class Class_ extends ClassReflector
 
     public $startedProcessingCategory = [];
 
+    public $startedProcessingAccessLevel = [];
+
     public function __construct(Project $project, ClassReflector $reflector)
     {
         $this->project = $project;
@@ -201,41 +203,29 @@ class Class_ extends ClassReflector
             $public = 0;
             $protected = 0;
             $private = 0;
+            $count = 0;
             $build = [];
             foreach ($symbols as $symbol) {
                 $category = (strlen($symbol->category()) > 0)
                     ? $symbol->category()
                     : 'NO_CATEGORY';
+
                 $accessAndType = '';
-                if ($this->symbolIsStatic($symbol) && $this->symbolIsPublic($symbol)) {
-                    $accessAndType = 'static_public';
-                    $staticPublic++;
-
-                } elseif ($this->symbolIsStatic($symbol) && $this->symbolIsProtected($symbol)) {
-                    $accessAndType = 'static_protected';
-                    $staticProtected++;
-
-                } elseif ($this->symbolIsStatic($symbol) && $this->symbolIsPrivate($symbol)) {
-                    $accessAndType = 'static_private';
-                    $staticPrivate++;
-
-                } elseif ($this->symbolIsProtected($symbol)) {
-                    $accessAndType = 'protected';
-                    $protected++;
-
-                } elseif ($this->symbolIsPrivate($symbol)) {
-                    $accessAndType = 'private';
-                    $private++;
+                if ($symbol->reflector->isStatic() && $access = $symbol->reflector->getVisibility()) {
+                    $accessAndType = 'static_'. $access;
+                    // $accessAndType = 'static_private';
+                    $count++;
 
                 } else {
-                    $accessAndType = 'public';
-                    $public++;
+                    $accessAndType = $symbol->reflector->getVisibility();;
+                    $count++;
 
                 }
+
                 $build[$category][$symbolType][$accessAndType][$symbol->name()] = $symbol;
             }
 
-            if ($public == 0 && $protected == 0 && $private == 0 && $staticPublic == 0 && $staticProtected == 0 && $staticPrivate == 0) {
+            if ($count == 0) {
                 $this->{$propertyName} = [];
 
             } else {
@@ -276,7 +266,7 @@ class Class_ extends ClassReflector
 
     private function symbolIs($symbol, $functionName)
     {
-        return (method_exists($symbol, $functionName) && $symbol->{$functionName}());
+        return (method_exists($symbol, $functionName) && $symbol->reflector->{$functionName}());
     }
 
     public function symbolWithName($instanceMethod, $name)
@@ -624,10 +614,9 @@ class Class_ extends ClassReflector
             foreach ($config['accessOrder'] as $access) {
                 if (isset($symbols[$access])) {
                     $symbolsToProcess = $symbols[$access];
-                    $return[] = $this->processSymbolsDefinitionForCategory($category, $symbolsToProcess, $config, !in_array($category, $this->startedProcessingCategory));
+                    $return[] = $this->processSymbolsDefinitionForCategory($category, $symbolsToProcess, $config);
                 }
             }
         }
-        $this->startedProcessingCategory[] = $category;
     }
 }

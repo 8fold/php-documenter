@@ -9,7 +9,7 @@ use League\CommonMark\CommonMarkConverter;
 /**
  * Create a definition list from a multidimensional dictionary of objects.
  *
- * @todo This has the most logic and varation of anything in Documenter. Further, it
+ * @todo This has the most logic and variation of anything in Documenter. Further, it
  *       is probably the most general purpose. However, it has no unit tests;
  *       therefore, makes it very dangerous to refactor or re-engineer. Make tests.
  */
@@ -119,8 +119,11 @@ trait DefinesSymbols
      */
     public function definitionListForSymbols($symbols, $config = [], &$return = [])
     {
+        // print_r($symbols);
         $config = array_merge($this->definesSymbolsDefaultConfig(), $config);
+        $list = [];
         foreach ($symbols as $category => $value) {
+            $list[$category] = [];
             $process = $this->shouldProcessSymbolDefinitionForCategory($category, $config);
 
             if ($process) {
@@ -128,13 +131,38 @@ trait DefinesSymbols
                 foreach ($symbolOrder as $symbolType) {
                     if (isset($symbols[$category][$symbolType])) {
                         $syms = $symbols[$category][$symbolType];
-                        $this->processSymbolTypeForCategory($category, $syms, $symbolType, $config, $return);
+                        $this->processSymbolTypeForCategory($category, $syms, $symbolType, $config, $list[$category]);
 
                     }
                 }
             }
         }
+        $this->labelForList($list, $config, $return);
         return implode("\n\n", $return);
+    }
+
+    private function labelForList($list, $config, &$return)
+    {
+        foreach ($list as $category => $symbolStrings) {
+            if (count($symbolStrings) > 0) {
+                $labelWrapper = (isset($config['labelWrapper']))
+                    ? $config['labelWrapper']
+                    : 'h2';
+                $labelText = (isset($config['label']))
+                    ? $config['label']
+                    : ($category == 'NO_CATEGORY')
+                        ? 'Miscellaneous'
+                        : $category;
+                $return[] = Html5Gen::$labelWrapper([
+                        'content' => $labelText
+                    ]);
+
+                foreach ($symbolStrings as $string) {
+                    $return[] = $string;
+
+                }
+            }
+        }
     }
 
     /**
@@ -203,7 +231,7 @@ trait DefinesSymbols
      * @param  [type] $config   [description]
      * @return [type]           [description]
      */
-    private function processSymbolsDefinitionForCategory($category, $symbols, $config, $showLabel = true)
+    private function processSymbolsDefinitionForCategory($category, $symbols, $config)
     {
         foreach ($symbols as $key => $symbol) {
             $termContent = $symbol->largeDeclaration;
@@ -235,22 +263,6 @@ trait DefinesSymbols
             }
         }
         $list = Html5Gen::dl(['content' => $categoryContent]);
-
-        $label = '';
-        if ($showLabel) {
-            $labelWrapper = (isset($config['labelWrapper']))
-                ? $config['labelWrapper']
-                : 'h2';
-            $labelText = (isset($config['label']))
-                ? $config['label']
-                : ($category == 'NO_CATEGORY')
-                    ? 'Miscellaneous'
-                    : $category;
-            $label = Html5Gen::$labelWrapper([
-                    'content' => $labelText
-                ]);
-        }
-
-        return $label ."\n\n". $list;
+        return $list;
     }
 }
