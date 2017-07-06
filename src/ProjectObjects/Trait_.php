@@ -40,6 +40,8 @@ class Trait_ extends TraitReflector
     }
 
     /**
+     * @todo  Update declarations.
+     *
      * See microDeclaration().
      *
      * @return [type] [description]

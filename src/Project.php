@@ -465,21 +465,19 @@ class Project
         return $iterator;
     }
 
-    /**
-     * @todo Make this an interface so it's more explicit.
-     *
-     * @param  [type] $category   [description]
-     * @param  [type] $symbols    [description]
-     * @param  [type] $symbolType [description]
-     * @param  [type] $config     [description]
-     * @param  [type] &$return    [description]
-     * @return [type]             [description]
-     */
-    static protected function processSymbolTypesForCategory($category, $symbols, $symbolType, $config, &$return)
+    static protected function definesSymbolsDefaultConfig()
     {
-        if (isset($symbols[$category][$symbolType])) {
-            $symbolsToProcess = $symbols[$category][$symbolType];
-            $return[] = static::processSymbolsDefinitionForCategory($category, $symbolsToProcess, $config);
-        }
+        return [
+            'symbolOrder' => [
+                'abstract',
+                'concrete',
+                'NO_TYPE'
+            ]
+        ];
+    }
+
+    protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return)
+    {
+        $return[] = $this->processSymbolsDefinitionForCategory($category, $symbols, $config);
     }
 }

@@ -9,18 +9,79 @@ use League\CommonMark\CommonMarkConverter;
 /**
  * Create a definition list from a multidimensional dictionary of objects.
  *
- * @todo This has the logic and varation of anything in Documenter, yet has no unit
- *       tests; therefore, makes it very dangerous to refactor or re-engineer. Make
- *       some.
+ * @todo This has the most logic and varation of anything in Documenter. Further, it
+ *       is probably the most general purpose. However, it has no unit tests;
+ *       therefore, makes it very dangerous to refactor or re-engineer. Make tests.
  */
 trait DefinesSymbols
 {
     static protected $noCategoryString = 'Miscellaneous';
 
-    abstract static protected function processSymbolTypesForCategory($category, $symbols, $symbolType, $config, &$return);
+    /**
+     * Returns a dictionary of default values for the configuration dictionary.
+     *
+     * When calling `definitionListForSymbols` all the keys are optional. The reason
+     * they are all optional is because each class using this trait defines the default
+     * values for most of them.
+     *
+     * The dictionary returned by this method **must** have the following defined:
+     *
+     * - `symbolOrder`: Array of strings, which are keys in the second dimension of
+     *   the symbols dictionary. ex. $symbols['Hello'][*`symbolOrder`*]
+     *
+     * After that, you can optionally override the defaults established below. And,
+     * extend the possibilities through additional configuration keys you allow and
+     * account for in the interception method: `processSymbolTypeForCategory`.
+     *
+     * @return array [description]
+     */
+    abstract static protected function definesSymbolsDefaultConfig();
 
     /**
-     * A definition list of the symbols for the class.
+     * Interception point for customizing configurations and anything else really.
+     *
+     * Callstack for this Trait:
+     *
+     * - User of class with trait calls: `definitionListForSymbols`.
+     * - `definitionListForSymbols` verifies whether to process a given category.
+     *   and symbol type calling: `shouldProcessSymbolDefinitionForCategory`.
+     * - `definitionListForSymbols` calls: `processSymbolTypeForCategory`. At which
+     *   point you may call `processSymbolsDefinitionForCategory`.
+     * - The `$return` array is then imploded and returned by:
+     *   `definitionListForSymbols`.
+     *
+     * Note:
+     *
+     * - If `$return` is empty, an empty string is returned by:
+     *   `definitionListForSymbols`
+     * - You are not required to call: `processSymbolsDefinitionForCategory`
+     *
+     * @param  [type] $category   [description]
+     * @param  [type] $symbols    [description]
+     * @param  [type] $symbolType [description]
+     * @param  [type] $config     [description]
+     * @param  [type] &$return    [description]
+     * @return [type]             [description]
+     */
+    abstract protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return);
+
+    /**
+     * This is the call site for getting a definition list of the symbols.
+     *
+     * The easiest way to define what is meant by "symbols" in this context is:
+     *
+     * When you call `classesCategorized` on a project, what is returned is a
+     * dictionary of symbols.
+     *
+     * This method takes the symbols dictionary to interpret as well as a
+     * configuration as well as an optional configuration dictionary.
+     *
+     * There are two areas of customization for you:
+     *
+     * 1. The default configuration, which you must create. See
+     *    `definesSymbolsDefaultString().
+     * 2. The method for processing a given symbol type. See
+     *    `processSymbolTypeForCategory`.
      *
      * `$symbols` is a dictionary of objects retrieved by something that defines
      * symbols. For example, a Project has Class_ and other symbols.
@@ -41,67 +102,64 @@ trait DefinesSymbols
      * - **labelWrapper:**   HTML element to wrap the label in. Defaults to h2.
      * - **skipCategories:** By default all categories will be processed.
      *                       `skipCategories` is an array of categories to *not*
-     *                       process.
+     *                       process. Defaults to empty array.
      * - **onlyCategories:** By default all categories will be processed.
      *                       `onlyCategories` is an array of categories to process.
      *                       Note: If the same category is in both `onlyCategories`
      *                       and `skipCategories`, the category will be processed.
-     * - **symbolOrder:**   Array defining what order to display the symbols. All the
+     *                       Defaults to empty array.
+     * - **symbolOrder:**    Array defining what order to display the symbols. All the
      *                       following must be present (default order): properties, and
-     *                       methods.
-     * - **accessOrder:**    Array defining what order to display access orders. All
-     *                       the following must present (default order): public,
-     *                       protected, private, static_public, static_protected, and
-     *                       static_private.
+     *                       methods. **No default.**
      *
      * @param  array $config   [description]
      * @param  array $symbols  [description]
      *
      * @return string               [description]
      */
-    static public function definitionListForSymbols($symbols, $config = [])
+    public function definitionListForSymbols($symbols, $config = [], &$return = [])
     {
-        $default = [
-            'symbolOrder' => [
-                'abstract',
-                'concrete'
-            ],
-            'accessOrder' => [
-                'public',
-                'protected',
-                'private',
-                'static_public',
-                'static_protected',
-                'static_private'
-            ],
-            'onlyCategories' => [],
-            'skipCategories' => [],
-            'labelWrapper' => 'h2'
-        ];
-        $config = array_merge($default, $config);
-
-        $return = [];
-        foreach ($symbols as $category => $accessLevels) {
-            $process = static::shouldProcessSymbolDefinitionForCategory($category, $config);
+        $config = array_merge($this->definesSymbolsDefaultConfig(), $config);
+        foreach ($symbols as $category => $value) {
+            $process = $this->shouldProcessSymbolDefinitionForCategory($category, $config);
 
             if ($process) {
                 $symbolOrder = $config['symbolOrder'];
-                // Both are three levels deep
-                // generic = [category][key1][key2]
-                // Class_ = [category][concrete/abstract][classname]
-                // Symbol = [category][symboltype][access]
-                //
                 foreach ($symbolOrder as $symbolType) {
-                    static::processSymbolTypesForCategory($category, $symbols, $symbolType, $config, $return);
+                    if (isset($symbols[$category][$symbolType])) {
+                        $syms = $symbols[$category][$symbolType];
+                        $this->processSymbolTypeForCategory($category, $syms, $symbolType, $config, $return);
+
+                    }
                 }
             }
         }
         return implode("\n\n", $return);
     }
 
-    static private function shouldProcessSymbolDefinitionForCategory($category, $config)
+    /**
+     * Instance alias of `definitionListForSymbols`.
+     *
+     * Sometimes you will want to maintain state between calls to
+     * `processSymbolTypeForCategory` - call this method allows for that.
+     *
+     * @param  [type] $symbols [description]
+     * @param  array  $config  [description]
+     * @return [type]          [description]
+     */
+    public function definitionListFor($symbols, $config = [])
     {
-        $onlyCategories = $config['onlyCategories'];
+        $return = [];
+        $this->definitionListForSymbols($symbols, $config, $return);
+        return implode("\n\n", $return);
+    }
+
+    private function shouldProcessSymbolDefinitionForCategory($category, $config)
+    {
+        $onlyCategories = [];
+        if (isset($config['onlyCategories'])) {
+            $onlyCategories = $config['onlyCategories'];
+        }
         $hasOnly = (count($onlyCategories) > 0);
         $inOnly = in_array($category, $onlyCategories);
         // print($category);
@@ -113,7 +171,10 @@ trait DefinesSymbols
             return true;
         }
 
-        $skippedCategories = $config['skipCategories'];
+        $skippedCategories = [];
+        if (isset($config['skipCategories'])) {
+            $skippedCategories = $config['skipCategories'];
+        }
         $hasSkipped = (count($skippedCategories) > 0);
         $inSkipped = in_array($category, $skippedCategories);
         // print($hasSkipped);
@@ -127,9 +188,24 @@ trait DefinesSymbols
         return true;
     }
 
-    static private function processSymbolsDefinitionForCategory($category, $symbols, $config)
+    /**
+     * [processSymbolsDefinitionForCategory description]
+     *
+     * @param  string $category The category name being processed.
+     * @param  array  $symbols  The symbols to process, where the value is the
+     *                          symbol. Symbols must have a `largeDeclaration`
+     *                          property or __get(table) method that returns a string,
+     *                          an 'isDeprecated' property or __get(table) method that
+     *                          returns aboolean, a `shortDescription` property or
+     *                          __get(table) method that returns a markdown string,
+     *                          and a `deprecatedDescription` property or __get(table)
+     *                          method that returns a markdown string.
+     * @param  [type] $config   [description]
+     * @return [type]           [description]
+     */
+    private function processSymbolsDefinitionForCategory($category, $symbols, $config, $showLabel = true)
     {
-        foreach ($symbols as $slug => $symbol) {
+        foreach ($symbols as $key => $symbol) {
             $termContent = $symbol->largeDeclaration;
             if ($symbol->isDeprecated) {
                 $termContent = [
@@ -160,15 +236,20 @@ trait DefinesSymbols
         }
         $list = Html5Gen::dl(['content' => $categoryContent]);
 
-        $labelWrapper = $config['labelWrapper'];
-        $labelText = (isset($config['label']))
-            ? $config['label']
-            : ($category == 'NO_CATEGORY')
-                ? 'Miscellaneous'
-                : $category;
-        $label = Html5Gen::$labelWrapper([
-                'content' => $labelText
-            ]);
+        $label = '';
+        if ($showLabel) {
+            $labelWrapper = (isset($config['labelWrapper']))
+                ? $config['labelWrapper']
+                : 'h2';
+            $labelText = (isset($config['label']))
+                ? $config['label']
+                : ($category == 'NO_CATEGORY')
+                    ? 'Miscellaneous'
+                    : $category;
+            $label = Html5Gen::$labelWrapper([
+                    'content' => $labelText
+                ]);
+        }
 
         return $label ."\n\n". $list;
     }
