@@ -16,10 +16,12 @@ use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
 
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
+
 /**
  * @category Symbols
  */
-class ClassMethod extends MethodReflector
+class ClassMethod extends MethodReflector implements HasDeclarations
 {
     use Gettable,
         DocBlocked,

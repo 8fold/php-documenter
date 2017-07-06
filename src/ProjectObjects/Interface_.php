@@ -6,6 +6,8 @@ use phpDocumentor\Reflection\InterfaceReflector;
 
 use Eightfold\DocumenterPhp\Project;
 
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
+
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
@@ -15,7 +17,7 @@ use Eightfold\DocumenterPhp\Traits\DocBlocked;
  *
  * @category Project object
  */
-class Interface_ extends InterfaceReflector
+class Interface_ extends InterfaceReflector implements HasDeclarations
 {
     use Gettable,
         DocBlocked,

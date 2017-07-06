@@ -9,6 +9,8 @@ use phpDocumentor\Reflection\TraitReflector;
 
 use Eightfold\DocumenterPhp\Project;
 
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
+
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
@@ -25,7 +27,7 @@ use Eightfold\DocumenterPhp\Traits\HasTraitDeclarations;
 /**
  * @category Project object
  */
-class Trait_ extends TraitReflector
+class Trait_ extends TraitReflector implements HasDeclarations
 {
     use Gettable,
         DocBlocked,

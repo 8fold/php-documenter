@@ -10,10 +10,8 @@ use phpDocumentor\Reflection\ClassReflector;
 
 use Eightfold\DocumenterPhp\Project;
 use Eightfold\DocumenterPhp\ClassExternal;
-// use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
-// use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
-// use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
-// use Eightfold\DocumenterPhp\ProjectObjects\Property;
+
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
@@ -32,7 +30,7 @@ use Eightfold\DocumenterPhp\Traits\HasInheritance;
  *
  * @category Project object
  */
-class Class_ extends ClassReflector
+class Class_ extends ClassReflector implements HasDeclarations
 {
     use Gettable,
         Namespaced,

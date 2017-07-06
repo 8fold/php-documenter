@@ -6,6 +6,8 @@ use Eightfold\Html5Gen\Html5Gen;
 
 use phpDocumentor\Reflection\ClassReflector\PropertyReflector;
 
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
+
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
@@ -14,7 +16,7 @@ use Eightfold\DocumenterPhp\Traits\Sluggable;
 /**
  * @category Symbols
  */
-class Property extends PropertyReflector
+class Property extends PropertyReflector implements HasDeclarations
 {
     use Gettable,
         DocBlocked,

@@ -11,13 +11,15 @@ use Eightfold\DocumenterPhp\Project;
 use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
 use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\TypeHint;
 
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
+
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 
 /**
  * @category Symbols
  */
-class Parameter extends ArgumentReflector
+class Parameter extends ArgumentReflector implements HasDeclarations
 {
     use Gettable,
         DocBlocked;
@@ -115,5 +117,20 @@ class Parameter extends ArgumentReflector
         $this->typeString($asHtml, $build);
         $this->nameString($asHtml, $build);
         return implode(' ', $build);
+    }
+
+    public function smallDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->mediumDeclaration($asHtml, $withLink);
+    }
+
+    public function miniDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->mediumDeclaration($asHtml, $withLink);
+    }
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
+    {
+        return $this->mediumDeclaration($asHtml, $withLink);
     }
 }
