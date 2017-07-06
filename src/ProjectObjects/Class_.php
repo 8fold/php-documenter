@@ -197,26 +197,27 @@ class Class_ extends ClassReflector
     private function getCategorized($propertyName, $symbols, $symbolType = 'methods')
     {
         if (count($this->{$propertyName}) == 0) {
-            $staticPublic = 0;
-            $staticProtected = 0;
-            $staticPrivate = 0;
-            $public = 0;
-            $protected = 0;
-            $private = 0;
-            $count = 0;
             $build = [];
             foreach ($symbols as $symbol) {
-                $category = (strlen($symbol->category()) > 0)
-                    ? $symbol->category()
-                    : 'NO_CATEGORY';
+                $category = '';
+                if ($symbol->name() == '__construct') {
+                    $category = 'Initializer';
+
+                } elseif (strlen($symbol->category()) > 0) {
+                    $category = $symbol->category();
+
+                } else {
+                    $category = 'NO_CATEGORY';
+
+                }
 
                 $accessAndType = '';
                 if ($symbol->reflector->isStatic() && $access = $symbol->reflector->getVisibility()) {
                     $accessAndType = 'static_'. $access;
-                    // $accessAndType = 'static_private';
                     $count++;
 
                 } else {
+                    // Default is public.
                     $accessAndType = $symbol->reflector->getVisibility();;
                     $count++;
 
@@ -225,21 +226,16 @@ class Class_ extends ClassReflector
                 $build[$category][$symbolType][$accessAndType][$symbol->name()] = $symbol;
             }
 
-            if ($count == 0) {
-                $this->{$propertyName} = [];
+            // Sort symbols alphabetically by name.
+            foreach ($build as $category => $accessLevels) {
+                foreach ($accessLevels as $access => $symbolTypes) {
+                    foreach ($symbolTypes as $symbolType => $symbols);
+                    ksort($symbols);
+                    $build[$category][$access][$symbolType] = $symbols;
 
-            } else {
-                foreach ($build as $category => $accessLevels) {
-                    foreach ($accessLevels as $access => $symbolTypes) {
-                        foreach ($symbolTypes as $symbolType => $symbols);
-                        ksort($symbols);
-                        $build[$category][$access][$symbolType] = $symbols;
-
-                    }
                 }
-                $this->{$propertyName} = $build;
-
             }
+            $this->{$propertyName} = $build;
         }
         return $this->{$propertyName};
     }
