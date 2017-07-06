@@ -10,16 +10,20 @@ use phpDocumentor\Reflection\ClassReflector;
 
 use Eightfold\DocumenterPhp\Project;
 use Eightfold\DocumenterPhp\ClassExternal;
-use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
-use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
-use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
-use Eightfold\DocumenterPhp\ProjectObjects\Property;
+// use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
+// use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+// use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
+// use Eightfold\DocumenterPhp\ProjectObjects\Property;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasSymbols;
 use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
+use Eightfold\DocumenterPhp\Traits\HasMethods;
+use Eightfold\DocumenterPhp\Traits\HasProperties;
+use Eightfold\DocumenterPhp\Traits\HasObjects;
 
 /**
  * Represents a `class` in a project.
@@ -32,29 +36,16 @@ class Class_ extends ClassReflector
         Namespaced,
         DocBlocked,
         Sluggable,
-        DefinesSymbols;
+        HasSymbols,
+        DefinesSymbols,
+        HasMethods,
+        HasProperties;
 
     static private $urlProjectObjectName = 'classes';
 
     private $project = null;
 
     private $reflector = null;
-
-    private $interfaces = [];
-
-    protected $traits = [];
-
-    private $_properties = [];
-
-    protected $propertiesCategorized = [];
-
-    private $_methods = [];
-
-    protected $methodsCategorized = [];
-
-    public $startedProcessingCategory = [];
-
-    public $startedProcessingAccessLevel = [];
 
     public function __construct(Project $project, ClassReflector $reflector)
     {
@@ -63,11 +54,6 @@ class Class_ extends ClassReflector
 
         // Setting `node` on ClassReflector
         $this->node = $this->reflector->getNode();
-    }
-
-    public function project()
-    {
-        return $this->project;
     }
 
     public function isAbstract()
@@ -80,6 +66,23 @@ class Class_ extends ClassReflector
         return true;
     }
 
+    /**
+     * [project description]
+     * @return [type] [description]
+     *
+     * @category Get project
+     */
+    public function project()
+    {
+        return $this->project;
+    }
+
+    /**
+     * [parent description]
+     * @return [type] [description]
+     *
+     * @category Get parent class
+     */
     public function parent()
     {
         $extends = $this->node->extends;
@@ -94,11 +97,25 @@ class Class_ extends ClassReflector
         return new ClassExternal($extends->parts);
     }
 
+    /**
+     * [inheritance description]
+     * @return [type] [description]
+     *
+     * @category Get parent class
+     */
     public function inheritance()
     {
         return $this->parentRecursive($this);
     }
 
+    /**
+     * [parentRecursive description]
+     * @param  [type] $object  [description]
+     * @param  array  $objects [description]
+     * @return [type]          [description]
+     *
+     * @category Get parent class
+     */
     private function parentRecursive($object, $objects = [])
     {
         $objects[] = $object;
@@ -109,143 +126,15 @@ class Class_ extends ClassReflector
         return array_reverse($objects);
     }
 
-    private function interfaces()
-    {
-        return $this->objectsForPropertyName('interfaces', Interface_::class, $this->getInterfaces());
-    }
-
-    public function traits()
-    {
-        return $this->objectsForPropertyName('traits', Trait_::class, $this->reflector->getTraits());
-    }
-
-    public function properties()
-    {
-        return $this->symbolsForProperty('_properties', Property::class, 'getProperties');
-    }
-
-    private function propertiesCategorized()
-    {
-        return $this->getCategorized('propertiesCategorized', $this->properties(), 'properties');
-    }
-
-    public function propertyWithName($name)
-    {
-        return $this->symbolWithName('properties', $name);
-    }
-
-    public function propertyWithSlug($slugName)
-    {
-        return $this->objectWithSlug($slugName, $this->properties());
-    }
-
-    public function methods()
-    {
-        return $this->symbolsForProperty('_methods', ClassMethod::class, 'getMethods');
-    }
-
-    private function methodsCategorized()
-    {
-        return $this->getCategorized('methodsCategorized', $this->methods());
-    }
-
-    public function methodWithName($name)
-    {
-        return $this->symbolWithName('methods', $name);
-    }
-
-    public function methodWithSlug($slugName)
-    {
-        return $this->objectWithSlug($slugName, $this->methods());
-    }
-
-    private function objectWithSlug($slugName, $objects)
-    {
-        foreach ($objects as $object) {
-            if ($object->slug == $slugName) {
-                return $object;
-            }
-        }
-        return null;
-    }
-
+    /**
+     * [symbolsCategorized description]
+     * @return [type] [description]
+     *
+     * @category Get symbols for class
+     */
     public function symbolsCategorized()
     {
         return array_merge_recursive($this->propertiesCategorized(), $this->methodsCategorized());
-    }
-
-    private function symbolsForProperty($instanceProperty, $classToInstantiate, $reflectorMethodName)
-    {
-        if (count($this->{$instanceProperty}) == 0 && count($this->reflector->$reflectorMethodName()) > 0) {
-            $return = [];
-            foreach ($this->reflector->$reflectorMethodName() as $reflector) {
-                $return[] = new $classToInstantiate($this, $reflector);
-            }
-            $this->{$instanceProperty} = $return;
-        }
-        return $this->{$instanceProperty};
-    }
-
-    /**
-     * [getCategorized description]
-     *
-     * @param  [type] $propertyName [description]
-     * @param  [type] $symbols      [description]
-     * @param  string $symbolType   [description]
-     * @return [type]               [description]
-     */
-    private function getCategorized($propertyName, $symbols, $symbolType = 'methods')
-    {
-        if (count($this->{$propertyName}) == 0) {
-            $build = [];
-            foreach ($symbols as $symbol) {
-                $category = '';
-                if ($symbol->name() == '__construct') {
-                    $category = 'Initializer';
-
-                } elseif (strlen($symbol->category()) > 0) {
-                    $category = $symbol->category();
-
-                } else {
-                    $category = 'NO_CATEGORY';
-
-                }
-
-                $accessAndType = '';
-                if ($symbol->reflector->isStatic() && $access = $symbol->reflector->getVisibility()) {
-                    $accessAndType = 'static_'. $access;
-
-                } else {
-                    // Default is public
-                    $accessAndType = $symbol->reflector->getVisibility();;
-
-                }
-
-                $build[$category][$symbolType][$accessAndType][$symbol->name()] = $symbol;
-            }
-
-            // Sort symbols alphabetically by name.
-            foreach ($build as $category => $accessLevels) {
-                foreach ($accessLevels as $access => $symbolTypes) {
-                    foreach ($symbolTypes as $symbolType => $symbols);
-                    ksort($symbols);
-                    $build[$category][$access][$symbolType] = $symbols;
-
-                }
-            }
-            $this->{$propertyName} = $build;
-        }
-        return $this->{$propertyName};
-    }
-
-    public function symbolWithName($instanceMethod, $name)
-    {
-        foreach ($this->$instanceMethod() as $symbol) {
-            if ($symbol->name == $name) {
-                return $symbol;
-            }
-        }
-        return null;
     }
 
     /**
@@ -318,7 +207,7 @@ class Class_ extends ClassReflector
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
@@ -346,7 +235,7 @@ class Class_ extends ClassReflector
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function mediumDeclaration($asHtml = true, $withLink = true)
     {
@@ -373,7 +262,7 @@ class Class_ extends ClassReflector
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function smallDeclaration($asHtml = true, $withLink = true)
     {
@@ -397,7 +286,7 @@ class Class_ extends ClassReflector
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
@@ -420,7 +309,7 @@ class Class_ extends ClassReflector
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
     {
@@ -531,34 +420,10 @@ class Class_ extends ClassReflector
     }
 
     /**
-     * [objectsForPropertyName description]
-     * @param  [type] $instanceProperty        [description]
-     * @param  [type] $classToInstantiate      [description]
-     * @param  [type] $fileReflectorMethodName [description]
-     * @return [type]                          [description]
+     * [definesSymbolsDefaultConfig description]
+     * @return [type] [description]
      *
-     * @category Utilities
      */
-    private function objectsForPropertyName($instanceProperty, $class, $objectFullNames)
-    {
-        if (count($objectFullNames) == 0) {
-            return [];
-        }
-
-        if (count($this->{$instanceProperty}) == 0) {
-            $objects = [];
-            foreach ($objectFullNames as $objectFullName) {
-                $object = $this->project->objectWithFullName($objectFullName);
-                if (!is_null($object) && is_a($object, $class)) {
-                    $objects[] = $object;
-
-                }
-            }
-            $this->{$instanceProperty} = $objects;
-        }
-        return $this->{$instanceProperty};
-    }
-
     static protected function definesSymbolsDefaultConfig()
     {
         return [
@@ -577,6 +442,15 @@ class Class_ extends ClassReflector
         ];
     }
 
+    /**
+     * [processSymbolTypeForCategory description]
+     * @param  [type] $category   [description]
+     * @param  [type] $symbols    [description]
+     * @param  [type] $symbolType [description]
+     * @param  [type] $config     [description]
+     * @param  [type] &$return    [description]
+     * @return [type]             [description]
+     */
     protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return)
     {
         if (count($config['accessOrder']) > 0) {

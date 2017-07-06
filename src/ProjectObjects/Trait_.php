@@ -13,6 +13,9 @@ use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasSymbols;
+use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
+use Eightfold\DocumenterPhp\Traits\HasMethods;
 
 /**
  * @category Project object
@@ -50,7 +53,7 @@ class Trait_ extends TraitReflector
      */
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return $this->miniDeclaration($asHtml, $withLink);
     }
 
     /**
@@ -62,7 +65,7 @@ class Trait_ extends TraitReflector
      */
     public function mediumDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return $this->miniDeclaration($asHtml, $withLink);
     }
 
     /**
@@ -75,7 +78,7 @@ class Trait_ extends TraitReflector
      */
     public function smallDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return $this->miniDeclaration($asHtml, $withLink);
     }
 
     /**
@@ -87,7 +90,16 @@ class Trait_ extends TraitReflector
      */
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        $build = [];
+        $this->displayNameString($asHtml, $build, 'trait');
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => implode(' ',$build),
+                'href' => $this->url()
+            ]);
+        }
+        return implode(' ', $build);
     }
 
     /**
@@ -99,13 +111,10 @@ class Trait_ extends TraitReflector
      */
     public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
     {
-        $build = [];
-        $keyword = 'trait';
-        $this->displayNameString($asHtml, $build, $keyword);
-        $string = implode(' ', $build);
+        $string = $this->miniDeclaration($asHtml, $withLink);
         if ($showKeyword) {
             return $string;
         }
-        return str_replace($keyword .' ', $string);
+        return str_replace('trait ', '', $string);
     }
 }

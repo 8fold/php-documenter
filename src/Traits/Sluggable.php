@@ -5,6 +5,8 @@ namespace Eightfold\DocumenterPhp\Traits;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 
 use Eightfold\DocumenterPhp\ProjectObjects\Class_;
+use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 
 trait Sluggable
 {
@@ -32,7 +34,7 @@ trait Sluggable
     public function url()
     {
         $build = [];
-        if (static::class == Class_::class) {
+        if (static::class == Class_::class || static::class == Trait_::class) {
             $build[] = $this->project->url;
             $build[] = StringHelpers::namespaceToSlug($this->space);
 

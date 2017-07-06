@@ -13,6 +13,50 @@ At 8fold, we also found limitations with the static site generators, which inspi
 
 Add Documenter to a PHP project and deliver the documentation via web-based APIs. Add Documenter to a dynamic site and integrate it seemlessly (no need to switch from dynamic content delivery to static content delivery). Change your return strings or template files without having to do anything else to update all project versions to the new look and feel.
 
+## Elements, Objects, and Symbols
+
+**Element:** A piece of code that can have associated DocBlock.
+**Object:** An *element* with an independent scope.
+**Symbol:** An *element* with a dependent scope.
+
+For example, the following are all "objects":
+
+```php
+<?php
+
+// Variable
+$hello = 12;
+
+// Function
+function hello($int) { return $int; }
+
+// Class_
+class Hello {}
+
+// Trait_
+trait Hello {}
+
+// Interface_
+interface Hello {}
+```
+
+Further, for symbols; using the `class Hello` from above:
+
+```php
+<?php
+
+// Class_
+class Hello {
+  // Property
+  $hello = 12;
+
+  // Method
+  function hello($int) { return $int; }
+}
+```
+
+All of the above are representations of elements.
+
 ## DocBlocks
 
 DocBlocks are the main way to document your code and make it ready for Documenter. For PHP a DocBlock appears between a forward slash followed by two asterisks (/**) and single asterisk followed by a forward slash (*/). Further, they appear just *above* the element being documented.
