@@ -4,33 +4,27 @@ namespace Eightfold\DocumenterPhp\ProjectObjects;
 
 use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+use League\CommonMark\CommonMarkConverter;
 
 use phpDocumentor\Reflection\ClassReflector;
 
 use Eightfold\DocumenterPhp\Project;
-use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
-use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+use Eightfold\DocumenterPhp\ClassExternal;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\Namespaced;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
-
-// use Eightfold\Documenter\Php\Property;
-// use Eightfold\Documenter\Php\Method;
-// use Eightfold\Documenter\Php\DocBlock;
-
-// use Eightfold\Documenter\Interfaces\HasDeclarations;
-
-// use Eightfold\Documenter\Traits\HasInheritance;
-// use Eightfold\Documenter\Traits\Nameable;
-// use Eightfold\Documenter\Traits\Symbolic;
-// use Eightfold\Documenter\Traits\DocBlockable;
-// use Eightfold\Documenter\Traits\HighlightableString;
-// use Eightfold\Documenter\Traits\CanBeAbstract;
-// use Eightfold\Documenter\Traits\CanBeFinal;
-// use Eightfold\Documenter\Traits\CanHaveTraits;
+use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasSymbols;
+use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
+use Eightfold\DocumenterPhp\Traits\HasMethods;
+use Eightfold\DocumenterPhp\Traits\HasProperties;
+use Eightfold\DocumenterPhp\Traits\HasTraits;
+use Eightfold\DocumenterPhp\Traits\HasObjects;
+use Eightfold\DocumenterPhp\Traits\HasClassDefinitionsList;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
 
 /**
  * Represents a `class` in a project.
@@ -41,17 +35,22 @@ class Class_ extends ClassReflector implements HasDeclarations
 {
     use Gettable,
         Namespaced,
-        DocBlocked;
+        DocBlocked,
+        Sluggable,
+        HasSymbols,
+        DefinesSymbols,
+        HasMethods,
+        HasProperties,
+        HasTraits,
+        HasObjects,
+        HasClassDefinitionsList,
+        HasInheritance;
 
     static private $urlProjectObjectName = 'classes';
 
     private $project = null;
 
     private $reflector = null;
-
-    private $interfaces = [];
-
-    protected $traits = [];
 
     public function __construct(Project $project, ClassReflector $reflector)
     {
@@ -67,14 +66,31 @@ class Class_ extends ClassReflector implements HasDeclarations
         return $this->reflector->getNode()->isAbstract();
     }
 
-    private function interfaces()
+    public function isInProjectSpace()
     {
-        return $this->objectsForPropertyName('interfaces', Interface_::class, $this->getInterfaces());
+        return true;
     }
 
-    public function traits()
+    /**
+     * [project description]
+     * @return [type] [description]
+     *
+     * @category Get project
+     */
+    public function project()
     {
-        return $this->objectsForPropertyName('traits', Trait_::class, $this->reflector->getTraits());
+        return $this->project;
+    }
+
+    /**
+     * [symbolsCategorized description]
+     * @return [type] [description]
+     *
+     * @category Get symbols for class
+     */
+    public function symbolsCategorized()
+    {
+        return array_merge_recursive($this->propertiesCategorized(), $this->methodsCategorized());
     }
 
     /**
@@ -147,12 +163,12 @@ class Class_ extends ClassReflector implements HasDeclarations
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         $this->inheritanceString($asHtml, $build);
         $this->interfacesString($asHtml, $build);
         $this->traitsString($asHtml, $build);
@@ -175,12 +191,12 @@ class Class_ extends ClassReflector implements HasDeclarations
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function mediumDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         $this->inheritanceString($asHtml, $build);
         $this->interfacesString($asHtml, $build);
         if ($withLink) {
@@ -202,12 +218,12 @@ class Class_ extends ClassReflector implements HasDeclarations
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function smallDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         $this->inheritanceString($asHtml, $build);
         if ($withLink) {
             return Html5Gen::a([
@@ -226,12 +242,12 @@ class Class_ extends ClassReflector implements HasDeclarations
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
-        $this->classString($asHtml, $build);
+        $this->displayNameString($asHtml, $build);
         if ($withLink) {
             return Html5Gen::a([
                 'class' => 'call-signature',
@@ -249,7 +265,7 @@ class Class_ extends ClassReflector implements HasDeclarations
      *
      * @return [type] [description]
      *
-     * @category Strings
+     * @category Declarations
      */
     public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
     {
@@ -257,20 +273,7 @@ class Class_ extends ClassReflector implements HasDeclarations
         if ($showKeyword) {
             return $string;
         }
-        return str_replace('class ', $string);
-    }
-
-    /**
-     * [classString description]
-     * @param  [type] $asHtml [description]
-     * @param  [type] &$build [description]
-     * @return [type]         [description]
-     *
-     * @category Strings
-     */
-    private function classString($asHtml, &$build)
-    {
-        $build[] = $this->displayString($asHtml, $this->name, 'class');
+        return str_replace('class ', '', $string);
     }
 
     /**
@@ -285,7 +288,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     {
         if (strlen($this->parentName()) > 0) {
             $string = $this->relatedString($asHtml, $this->parentName());
-            $build[] = $this->displayString($asHtml, $string, 'extends');
+            $build[] = StringHelpers::displayString($asHtml, $string, 'extends');
         }
     }
 
@@ -301,7 +304,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     {
         if (strlen($this->interfaceNames) > 0) {
             $string = $this->relatedString($asHtml, $this->interfaceNames());
-            $build[] = $this->displayString($asHtml, $string, 'implements', 'implements-label');
+            $build[] = StringHelpers::displayString($asHtml, $string, 'implements', 'implements-label');
         }
     }
 
@@ -322,7 +325,7 @@ class Class_ extends ClassReflector implements HasDeclarations
 
             $traits = $this->relatedString($asHtml, $this->traitNames());
 
-            $build[] = $this->displayString($asHtml, $traits, $keyword, 'traits-label');
+            $build[] = StringHelpers::displayString($asHtml, $traits, $keyword, 'traits-label');
         }
     }
 
@@ -352,27 +355,6 @@ class Class_ extends ClassReflector implements HasDeclarations
     }
 
     /**
-     * [displayString description]
-     * @param  [type] $asHtml         [description]
-     * @param  [type] $title          [description]
-     * @param  [type] $keywordContent [description]
-     * @param  [type] $keywordClass   [description]
-     * @return [type]                 [description]
-     *
-     * @category Strings
-     */
-    private function displayString($asHtml, $title, $keywordContent, $keywordClass = null)
-    {
-        if ($asHtml) {
-            $keywordContent = Html5Gen::span([
-                'content' => $keywordContent,
-                'class' => (is_null($keywordClass)) ? $keywordContent : $keywordClass
-            ]);
-        }
-        return $keywordContent .' '. $title;
-    }
-
-    /**
      * [nameStringFromFullName description]
      * @param  [type] $fullName [description]
      * @return [type]           [description]
@@ -391,34 +373,5 @@ class Class_ extends ClassReflector implements HasDeclarations
 
         }
         return '';
-    }
-
-    /**
-     * [objectsForPropertyName description]
-     * @param  [type] $instanceProperty        [description]
-     * @param  [type] $classToInstantiate      [description]
-     * @param  [type] $fileReflectorMethodName [description]
-     * @return [type]                          [description]
-     *
-     * @category Utilities
-     */
-    private function objectsForPropertyName($instanceProperty, $class, $objectFullNames)
-    {
-        if (count($objectFullNames) == 0) {
-            return [];
-        }
-
-        if (count($this->{$instanceProperty}) == 0) {
-            $objects = [];
-            foreach ($objectFullNames as $objectFullName) {
-                $object = $this->project->objectWithFullName($objectFullName);
-                if (!is_null($object) && is_a($object, $class)) {
-                    $objects[] = $object;
-
-                }
-            }
-            $this->{$instanceProperty} = $objects;
-        }
-        return $this->{$instanceProperty};
     }
 }

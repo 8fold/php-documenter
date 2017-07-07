@@ -8,8 +8,6 @@ trait Namespaced
 {
     private $namespaceParts = [];
 
-    private $url = '';
-
     private function namespaceParts()
     {
         if (count($this->namespaceParts) == 0) {
@@ -35,27 +33,16 @@ trait Namespaced
         return $this->reflector->getShortName();
     }
 
-    public function slug()
-    {
-        return StringHelpers::slug($this->name);
-    }
-
     /**
-     * Get the url for the Project Object with this Trait.
-     *
-     * Note: You should create a static private property called
-     * `$urlProjectObjectName`. Ex. `static private $urlProjectObjectName = 'classes';`
-     *
-     * @return [type] [description]
+     * [classString description]
+     * @param  [type] $asHtml [description]
+     * @param  [type] &$build [description]
+     * @return [type]         [description]
      *
      * @category Strings
      */
-    public function url()
+    private function displayNameString($asHtml, &$build, $keyword = 'class')
     {
-        if (strlen($this->url) == 0) {
-            $spaceSlug = StringHelpers::namespaceToSlug($this->space);
-            $this->url = $this->project->url() .'/'. $spaceSlug .'/'. static::$urlProjectObjectName .'/'. $this->slug;
-        }
-        return $this->url;
+        $build[] = StringHelpers::displayString($asHtml, $this->name, $keyword);
     }
 }

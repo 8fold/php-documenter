@@ -10,11 +10,14 @@ use \RecursiveDirectoryIterator;
 use \RecursiveCallbackFilterIterator;
 use \FilesystemIterator;
 
+use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+use League\CommonMark\CommonMarkConverter;
 
 use Eightfold\DocumenterPhp\File;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
+use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
 
 use Eightfold\DocumenterPhp\ProjectObjects\Class_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
@@ -25,8 +28,16 @@ use Eightfold\Documenter\Php\Property;
 
 class Project
 {
-    use Gettable;
+    use Gettable,
+        DefinesSymbols;
 
+    /**
+     * The file directory containing the project version you want to display.
+     *
+     * ex. [...] /app_docs/documenter-php/v1-0-0
+     *
+     * @var string
+     */
     private $path = '';
 
     private $basePath = '';
@@ -47,7 +58,11 @@ class Project
 
     private $traits = [];
 
+    private $traitsCategorized = [];
+
     private $interfaces = [];
+
+    private $interfacesCategorized = [];
 
     /**
      * Add all the project paths to an array passed by reference.
@@ -122,10 +137,10 @@ class Project
      *
      * @param string $path   The complete path to the project version.
      * @param string $root   The root directory of the directory to process within the
-     *                       project.
+     *                       project. No starting slash.
      * @param array $ignore  Array of directory names to ignore.
      */
-    public function __construct($path, $root = '/src', $ignore = [])
+    public function __construct($path, $root = 'src', $ignore = [])
     {
         // Path should be [...] /projectSlug/versionSlug
         $this->path = $path;
@@ -169,6 +184,14 @@ class Project
         return '/'. $this->projectSlug .'/'. $this->versionSlug;
     }
 
+    public function urlForVersion($version = '')
+    {
+        if (strlen($version) > 0) {
+            $version = str_replace('.', '-', $version);
+        }
+        return '/'. $this->projectSlug .'/'. $version;
+    }
+
     /**
      * [files description]
      * @return [type] [description]
@@ -182,7 +205,6 @@ class Project
             $files = [];
             foreach ($iterator as $fileInfo) {
                 $file = new File($fileInfo->getPathname());
-                $file->process();
                 $namespaceSlug = StringHelpers::namespaceToSlug($file->getNamespace());
                 $files[$namespaceSlug][] = $file;
 
@@ -237,6 +259,11 @@ class Project
         return $this->objectsForPropertyName('traits', Trait_::class, 'getTraits');
     }
 
+    public function traitsCategorized()
+    {
+        return $this->objectsOrdered($this->traits(), 'traitsCategorized');
+    }
+
     /**
      * @category Get objects
      *
@@ -247,10 +274,22 @@ class Project
         return $this->objectsForPropertyName('interfaces', Interface_::class, 'getInterfaces');
     }
 
+    public function interfacesCategorized()
+    {
+        return $this->objectsOrdered($this->interfaces(), 'interfacesCategorized');
+    }
+
     /**
-     * [objectWithFullName description]
+     * Factory method that returns instantiated project object with given full name.
+     *
+     * For example, if we have a class named `Hello` in namespace `Vendor\World`,
+     * passing `\Vendor\World\Hello` would result in an instance of Class_; thereby,
+     * giving you access to all the details for that class. Further, if we has a trait
+     * with the same name, the result would be an instance of Trait_.
+     *
      * @param  [type] $fullName [description]
-     * @return [type]           [description]
+     *
+     * @return \Eightfold\DocumenterPhp\ProjectObjects\Class_|\Eightfold\DocumenterPhp\ProjectObjects\Trait_|\Eightfold\DocumenterPhp\ProjectObjects\Interface_  Instance of project object
      *
      * @category Get objects
      */
@@ -269,6 +308,22 @@ class Project
         }
 
         return null;
+    }
+
+    public function objectWithPath($path)
+    {
+        $replacements = [
+            '/classes/'    => '-',
+            '/traits/'     => '-',
+            '/interfaces/' => '-',
+            '/properties/' => '-',
+            '/methods/'    => '-',
+            '/'            => '-'
+        ];
+        $replace = array_keys($replacements);
+        $with = array_values($replacements);
+        $slug = str_replace($replace, $with, $path);
+        return $this->objectWithFullName($slug);
     }
 
     private function objectWithFullNameFromObjects($fullName, $objects)
@@ -410,39 +465,19 @@ class Project
         return $iterator;
     }
 
+    static protected function definesSymbolsDefaultConfig()
+    {
+        return [
+            'symbolOrder' => [
+                'abstract',
+                'concrete',
+                'NO_TYPE'
+            ]
+        ];
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Get versions for a specified project.
-     *
-     * @param  [type] $projectSlug [description]
-     * @return [type]              [description]
-     *
-     * @category Utilities
-     */
-    // private function versions($projectSlug)
-    // {
-    //     $projects = $this->projects();
-    //     if (count($this->versions) == 0 && isset($projects[$projectSlug])) {
-    //         return $projects[$projectSlug];
-
-    //     }
-    //     return [];
-    // }
+    protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return)
+    {
+        $return[] = $this->processSymbolsDefinitionForCategory($category, $symbols, $config);
+    }
 }

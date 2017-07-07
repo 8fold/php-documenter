@@ -50,25 +50,25 @@ class ProjectTest extends BaseTest
     public function testProjectFiles()
     {
         $project = new Project($this->versionPath());
-        $this->assertTrue($project->totalFiles == 6, 'found files: '. $project->totalFiles);
+        $this->assertTrue($project->totalFiles == 10, 'found files: '. $project->totalFiles);
     }
 
     public function testProjectClasses()
     {
         $project = new Project($this->versionPath());
-        $this->assertTrue(count($project->classes) == 4, 'found classes: '. count($project->classes));
+        $this->assertTrue(count($project->classes) == 5, 'found classes: '. count($project->classes));
     }
 
     public function testProjectTraits()
     {
         $project = new Project($this->versionPath());
-        $this->assertTrue(count($project->traits) == 2, 'found traits: '. count($project->traits));
+        $this->assertTrue(count($project->traits) == 4, 'found traits: '. count($project->traits));
     }
 
     public function testProjectInterfaces()
     {
         $project = new Project($this->versionPath());
-        $this->assertTrue(count($project->interfaces) == 0);
+        $this->assertTrue(count($project->interfaces) == 1, 'found interfaces: '. count($project->interfaces));
     }
 
     public function testProjectObjectWithFullName()

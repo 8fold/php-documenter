@@ -6,24 +6,46 @@ use phpDocumentor\Reflection\InterfaceReflector;
 
 use Eightfold\DocumenterPhp\Project;
 
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
+
 use Eightfold\DocumenterPhp\Traits\Gettable;
-use Eightfold\DocumenterPhp\Traits\Namespaced;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
+use Eightfold\DocumenterPhp\Traits\Namespaced;
+use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasSymbols;
+use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
+use Eightfold\DocumenterPhp\Traits\HasMethods;
+use Eightfold\DocumenterPhp\Traits\HasProperties;
+use Eightfold\DocumenterPhp\Traits\HasObjects;
+use Eightfold\DocumenterPhp\Traits\HasClassDefinitionsList;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
+use Eightfold\DocumenterPhp\Traits\HasTraitDeclarations;
 
 /**
  * Represents an `interface` in a project.
  *
  * @category Project object
  */
-class Interface_ extends InterfaceReflector
+class Interface_ extends InterfaceReflector implements HasDeclarations
 {
     use Gettable,
+        DocBlocked,
         Namespaced,
-        DocBlocked;
+        Sluggable,
+        HasSymbols,
+        DefinesSymbols,
+        HasMethods,
+        HasProperties,
+        HasObjects,
+        HasClassDefinitionsList,
+        HasInheritance,
+        HasTraitDeclarations;
 
-    private $reflector = null;
+    static private $urlProjectObjectName = 'interfaces';
 
     private $project = null;
+
+    private $reflector = null;
 
     public function __construct(Project $project, InterfaceReflector $reflector)
     {
@@ -34,15 +56,19 @@ class Interface_ extends InterfaceReflector
         $this->node = $this->reflector->getNode();
     }
 
-    // public function methods()
-    // {
-    //     return array_values($this->reflector->methods);
-    // }
+    public function isInProjectSpace()
+    {
+        return true;
+    }
 
-    // public function namespaceName()
-    // {
-    //     $parts = explode('\\', $this->longName());
-    //     array_pop($parts);
-    //     return implode('\\', $parts);
-    // }
+    /**
+     * [symbolsCategorized description]
+     * @return [type] [description]
+     *
+     * @category Get symbols for class
+     */
+    public function symbolsCategorized()
+    {
+        return array_merge_recursive($this->propertiesCategorized(), $this->methodsCategorized());
+    }
 }

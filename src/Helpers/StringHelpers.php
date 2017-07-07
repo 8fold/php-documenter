@@ -2,6 +2,8 @@
 
 namespace Eightfold\DocumenterPhp\Helpers;
 
+use Eightfold\Html5Gen\Html5Gen;
+
 use Eightfold\DocumenterPhp\Helpers\Macroable;
 
 /**
@@ -36,7 +38,7 @@ class StringHelpers
     static public function namespaceToSlug($fullName)
     {
         $fullName = static::sanitizedNamespace($fullName);
-        return strtolower(str_replace('\\', '-', $fullName));
+        return strtolower(str_replace(['\\', '_'], ['-', ''], $fullName));
     }
 
     static public function sanitizedNamespace($fullName)
@@ -47,6 +49,27 @@ class StringHelpers
             $fullName = implode('\\', $parts);
         }
         return $fullName;
+    }
+
+    /**
+     * [displayString description]
+     * @param  [type] $asHtml         [description]
+     * @param  [type] $title          [description]
+     * @param  [type] $keywordContent [description]
+     * @param  [type] $keywordClass   [description]
+     * @return [type]                 [description]
+     *
+     * @category Strings
+     */
+    static public function displayString($asHtml, $title, $keywordContent, $keywordClass = null)
+    {
+        if ($asHtml) {
+            $keywordContent = Html5Gen::span([
+                'content' => $keywordContent,
+                'class' => (is_null($keywordClass)) ? $keywordContent : $keywordClass
+            ]);
+        }
+        return $keywordContent .' '. $title;
     }
 
     /**

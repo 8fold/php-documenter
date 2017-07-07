@@ -1,41 +1,17 @@
 <?php
 
-namespace Eightfold\DocumenterPhp\ProjectObjects;
+namespace Eightfold\DocumenterPhp\Traits;
 
 use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 
-use phpDocumentor\Reflection\TraitReflector;
+use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
 
-use Eightfold\DocumenterPhp\Project;
-
-use Eightfold\DocumenterPhp\Traits\Gettable;
-use Eightfold\DocumenterPhp\Traits\Namespaced;
-
-/**
- * @category Project object
- */
-class Trait_ extends TraitReflector
+trait HasTraitDeclarations
 {
-    use Gettable,
-        Namespaced;
-
-    static private $urlProjectObjectName = 'traits';
-
-    private $project = null;
-
-    private $reflector = null;
-
-    public function __construct(Project $project, TraitReflector $reflector)
-    {
-        $this->project = $project;
-        $this->reflector = $reflector;
-
-        // Setting `node` on InterfaceReflector
-        $this->node = $this->reflector->getNode();
-    }
-
     /**
+     * @todo  Update declarations.
+     *
      * See microDeclaration().
      *
      * @return [type] [description]
@@ -44,7 +20,7 @@ class Trait_ extends TraitReflector
      */
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return $this->miniDeclaration($asHtml, $withLink);
     }
 
     /**
@@ -56,7 +32,7 @@ class Trait_ extends TraitReflector
      */
     public function mediumDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return $this->miniDeclaration($asHtml, $withLink);
     }
 
     /**
@@ -69,7 +45,7 @@ class Trait_ extends TraitReflector
      */
     public function smallDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        return $this->miniDeclaration($asHtml, $withLink);
     }
 
     /**
@@ -81,7 +57,16 @@ class Trait_ extends TraitReflector
      */
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->microDeclaration($asHtml, $withLink);
+        $build = [];
+        $this->displayNameString($asHtml, $build, 'trait');
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => implode(' ',$build),
+                'href' => $this->url()
+            ]);
+        }
+        return implode(' ', $build);
     }
 
     /**
@@ -93,13 +78,14 @@ class Trait_ extends TraitReflector
      */
     public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
     {
-        $build = [];
-        $keyword = 'trait';
-        $this->displayNameString($asHtml, $build, $keyword);
-        $string = implode(' ', $build);
+        $string = $this->miniDeclaration($asHtml, $withLink);
         if ($showKeyword) {
             return $string;
         }
-        return str_replace($keyword .' ', $string);
+
+        if (static::class == Trait_::class) {
+            return str_replace('trait ', '', $string);
+        }
+        return str_replace('interface ', '', $string);
     }
 }
