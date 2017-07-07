@@ -20,7 +20,7 @@
     "autoload": {
         "psr-4": {
             "phpDocumentor\\Reflection\\": "vendor/phpdocumentor/reflection/src/phpDocumentor/Reflection",
-            "League\\CommonMark\\CommonMarkConverter": "league/commonmark/src/";
+            "League\\CommonMark\\CommonMarkConverter": "league/commonmark/src/",
 
             "Eightfold\\DocumenterPhp\\": "src/",
             "Eightfold\\Html5Gen\\": "vendor/8fold/html5-generator-php"
