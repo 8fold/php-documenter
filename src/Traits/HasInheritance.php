@@ -2,12 +2,15 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
-use Eightfold\DocumenterPhp\Class_;
-use Eightfold\DocumenterPhp\Interface_;
+use Eightfold\DocumenterPhp\ProjectObjects\Class_;
+use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
+use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 use Eightfold\DocumenterPhp\ClassExternal;
 
 trait HasInheritance
 {
+    private $parent = null;
+
     /**
      * [parent description]
      * @return [type] [description]
@@ -16,25 +19,27 @@ trait HasInheritance
      */
     public function parent()
     {
-        $parentNamespace = '';
-        if (static::class == Class_::class) {
-            $parentNamespace = $this->reflector->getParentClass();
+        if (is_null($this->parent)) {
+            $parentNamespace = '';
+            if (static::class == Class_::class) {
+                $parentNamespace = $this->reflector->getParentClass();
 
-        } elseif (static::class == Interface_::class) {
-            $parentNamespace = $this->reflector->getParentClass();
+            } elseif (static::class == Interface_::class) {
+                $parentNamespace = $this->reflector->getParentInterfaces();
 
+            }
+
+            if (strlen($parentNamespace) == 0) {
+                return null;
+            }
+
+            if ($parent = $this->project->objectWithFullName($parentNamespace)) {
+                $this->parent = $parent;
+            }
+            $parts = explode('\\', $parentNamespace);
+            $this->parent = new ClassExternal($parts);
         }
-
-        if (strlen($parentNamespace) == 0) {
-            return null;
-        }
-
-        // $parentNamespace = implode('\\', $extends->parts);
-        if ($parentClass = $this->project->objectWithFullName($parentNamespace)) {
-            return $parentClass;
-        }
-        $parts = explode('\\', $parentNamespace);
-        return new ClassExternal($parts);
+        return $this->parent;
     }
 
     /**
@@ -64,5 +69,27 @@ trait HasInheritance
             return $this->parentRecursive($parent, $objects);
         }
         return array_reverse($objects);
+    }
+
+    /**
+     * [parentName description]
+     * @return [type] [description]
+     *
+     * @category Strings
+     */
+    private function parentName()
+    {
+        return $this->nameStringFromFullName($this->parentFullName());
+    }
+
+    /**
+     * [parentFullName description]
+     * @return [type] [description]
+     *
+     * @category Strings
+     */
+    private function parentFullName()
+    {
+        return $this->getParentClass();
     }
 }

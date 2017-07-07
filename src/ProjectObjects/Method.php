@@ -139,7 +139,7 @@ class Method extends MethodReflector implements HasDeclarations
         $this->parameterString($asHtml, $build);
         $this->returnTypeString($asHtml, $build);
 
-        $built = str_replace([' (', ' :'], ['(', ':'], implode(' ', $build));
+        $built = str_replace([' (', '( ', ' :'], ['(', '([type]', ':'], implode(' ', $build));
         if ($withLink) {
             return Html5Gen::a([
                 'class' => 'call-signature',
@@ -150,7 +150,47 @@ class Method extends MethodReflector implements HasDeclarations
         return $built;
     }
 
-    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    public function mediumDeclaration($asHtml = true, $withLink = true)
+    {
+        $build = [];
+        $this->finalString($asHtml, $build);
+        $this->staticString($asHtml, $build);
+        $this->accessString($asHtml, $build);
+        $this->functionString($asHtml, $build);
+        $build[] = $this->name;
+        $this->parameterString($asHtml, $build);
+
+        $built = str_replace([' (', '( ', ' :'], ['(', '([type]', ':'], implode(' ', $build));
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $built,
+                'href' => $this->url()
+            ]);
+        }
+        return $built;
+    }
+
+    public function smallDeclaration($asHtml = true, $withLink = true)
+    {
+        $build = [];
+        $this->finalString($asHtml, $build);
+        $this->staticString($asHtml, $build);
+        $this->accessString($asHtml, $build);
+        $this->functionString($asHtml, $build);
+        $build[] = $this->name .'()';
+
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $built,
+                'href' => $this->url()
+            ]);
+        }
+        return $built;
+    }
+
+    public function miniDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
         $this->finalString($asHtml, $build);
@@ -172,6 +212,41 @@ class Method extends MethodReflector implements HasDeclarations
             'class'
         ];
         $with = [
+            '>abs<',
+            'stat',
+            'fin',
+            'priv',
+            'prot',
+            'pub',
+            'func',
+            'class'
+        ];
+
+        $build = str_replace($replace, $with, $base);
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $build,
+                'href' => $this->url()
+            ]);
+        }
+        return $build;
+    }
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = false)
+    {
+        $base = $this->miniDeclaration($asHtml, false);
+        $replace = [
+            '>abs<',
+            'stat',
+            'fin',
+            'priv',
+            'prot',
+            'pub',
+            'func',
+            'class'
+        ];
+        $with = [
             '><',
             '',
             '',
@@ -181,18 +256,6 @@ class Method extends MethodReflector implements HasDeclarations
             '',
             ''
         ];
-        if ($showKeywords) {
-            $with = [
-                '>abs<',
-                'stat',
-                'fin',
-                'priv',
-                'prot',
-                'pub',
-                'func',
-                'class'
-            ];
-        }
 
         $build = str_replace($replace, $with, $base);
         if ($withLink) {

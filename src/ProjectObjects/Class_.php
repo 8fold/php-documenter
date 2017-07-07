@@ -94,28 +94,6 @@ class Class_ extends ClassReflector implements HasDeclarations
     }
 
     /**
-     * [parentName description]
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    private function parentName()
-    {
-        return $this->nameStringFromFullName($this->parentFullName());
-    }
-
-    /**
-     * [parentFullName description]
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    private function parentFullName()
-    {
-        return $this->getParentClass();
-    }
-
-    /**
      * [interfaceNames description]
      * @return [type] [description]
      *

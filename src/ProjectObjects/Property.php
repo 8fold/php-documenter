@@ -62,15 +62,38 @@ class Property extends PropertyReflector implements HasDeclarations
         return $build;
     }
 
-
-    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    public function mediumDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
         $this->staticString($asHtml, $build);
         $this->accessString($asHtml, $build);
         $build[] = '$'. $this->name;
 
-        $base = implode(' ', $build);
+        $build = implode(' ', $build);
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $build,
+                'href' => $this->url()
+            ]);
+        }
+        return $build;
+    }
+
+    public function smallDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->mediumDeclaration($asHtml, $withLink);
+    }
+
+    public function miniDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->smallDeclaration($asHtml = true, $withLink = true);
+    }
+
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    {
+        $base = $this->miniDeclaration($asHtml, false);
 
         $replace = [
             '>abstract<',

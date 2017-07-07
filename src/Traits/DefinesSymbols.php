@@ -119,7 +119,24 @@ trait DefinesSymbols
      */
     public function definitionListForSymbols($symbols, $config = [], &$return = [])
     {
-        // print_r($symbols);
+        $config['LIST_TYPE'] = 'dl';
+        return $this->listForSymbols($symbols, $config, $return);
+    }
+
+    public function unorderedListForSymbols($symbols, $config = [], &$return = [])
+    {
+        $config['LIST_TYPE'] = 'ul';
+        return $this->listForSymbols($symbols, $config, $return);
+    }
+
+    public function orderedListForSymbols($symbols, $config = [], &$return = [])
+    {
+        $config['LIST_TYPE'] = 'ol';
+        return $this->listForSymbols($symbols, $config, $return);
+    }
+
+    private function listForSymbols($symbols, $config = [], &$return = [])
+    {
         $config = array_merge($this->definesSymbolsDefaultConfig(), $config);
         $list = [];
         foreach ($symbols as $category => $value) {
@@ -136,6 +153,14 @@ trait DefinesSymbols
                     }
                 }
             }
+
+            $strings = [];
+            foreach ($list[$category] as $key => $elements) {
+                foreach ($elements as $elementConfig) {
+                    $strings[] = Html5Gen::element($elementConfig);
+                }
+            }
+            $list[$category] = $strings;
         }
         $this->labelForList($list, $config, $return);
         return implode("\n\n", $return);
@@ -143,6 +168,7 @@ trait DefinesSymbols
 
     private function labelForList($list, $config, &$return)
     {
+        $listType = $config['LIST_TYPE'];
         foreach ($list as $category => $symbolStrings) {
             if (count($symbolStrings) > 0) {
                 $labelWrapper = (isset($config['labelWrapper']))
@@ -157,10 +183,7 @@ trait DefinesSymbols
                         'content' => $labelText
                     ]);
 
-                foreach ($symbolStrings as $string) {
-                    $return[] = $string;
-
-                }
+                $return[] = Html5Gen::$listType(['content' => $symbolStrings]);
             }
         }
     }
@@ -233,6 +256,10 @@ trait DefinesSymbols
      */
     private function processSymbolsDefinitionForCategory($category, $symbols, $config)
     {
+        $listType = $config['LIST_TYPE'];
+        $listItem = ($listType == 'ul' || $listType == 'ol')
+            ? 'li'
+            : 'dt';
         foreach ($symbols as $key => $symbol) {
             $termContent = $symbol->largeDeclaration;
             if ($symbol->isDeprecated) {
@@ -243,26 +270,27 @@ trait DefinesSymbols
             }
 
             $categoryContent[] = [
-                'element' => 'dt',
+                'element' => $listItem,
                 'config' => ['content' => $termContent]
             ];
 
-            $description = $symbol->shortDescription;
-            if ($symbol->isDeprecated) {
-                $description = $symbol->deprecatedDescription;
-            }
-            $converter = new CommonMarkConverter();
-            $description = $converter->convertToHtml($description);
+            if ($listType == 'dl') {
+                $description = $symbol->shortDescription;
+                if ($symbol->isDeprecated) {
+                    $description = $symbol->deprecatedDescription;
+                }
+                $converter = new CommonMarkConverter();
+                $description = $converter->convertToHtml($description);
 
-            if (strlen($description) > 0) {
-                $categoryContent[] = [
-                    'element' => 'dd',
-                    'config' => ['content' => $description]
-                ];
+                if (strlen($description) > 0) {
+                    $categoryContent[] = [
+                        'element' => 'dd',
+                        'config' => ['content' => $description]
+                    ];
 
+                }
             }
         }
-        $list = Html5Gen::dl(['content' => $categoryContent]);
-        return $list;
+        return $categoryContent;
     }
 }
