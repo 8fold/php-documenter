@@ -87,13 +87,13 @@ class Property extends PropertyReflector implements HasDeclarations
 
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->smallDeclaration($asHtml = true, $withLink = true);
+        return $this->smallDeclaration($asHtml, $withLink);
     }
 
 
     public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
     {
-        $base = $this->miniDeclaration($asHtml, false);
+        $base = $this->miniDeclaration($asHtml, $withLink);
 
         $replace = [
             '>abstract<',

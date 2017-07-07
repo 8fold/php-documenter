@@ -99,7 +99,11 @@ trait DefinesSymbols
      *
      * - **label:**          Placed before the definition list in the HTML string.
      *                       Defaults to the category name.
+     * - **showLabel:**      Whether or not to display the category label (true, or
+     *                       false). Setting to false will result in a single list;
+     *                       instead of a list per category (collapsed).
      * - **labelWrapper:**   HTML element to wrap the label in. Defaults to h2.
+     * - **listClass:**      A string of classes to add the the list wrapper element.
      * - **skipCategories:** By default all categories will be processed.
      *                       `skipCategories` is an array of categories to *not*
      *                       process. Defaults to empty array.
@@ -111,6 +115,12 @@ trait DefinesSymbols
      * - **symbolOrder:**    Array defining what order to display the symbols. All the
      *                       following must be present (default order): properties, and
      *                       methods. **No default.**
+     * - **declaration:**    A dictionary allowing you to dictate which declaration
+     *                       method to call for each symbol. The key `size` must be
+     *                       set, and can contain the value of large, medium, small,
+     *                       mini, and micro. There three optional keys (html, link,
+     *                       and keywords), which take booleans as the value; see the
+     *                       definitions for these methods for more details.
      *
      * @param  array $config   [description]
      * @param  array $symbols  [description]
@@ -138,6 +148,23 @@ trait DefinesSymbols
     private function listForSymbols($symbols, $config = [], &$return = [])
     {
         $config = array_merge($this->definesSymbolsDefaultConfig(), $config);
+        $hideLabel = (isset($config['showLabel']) && !$config['showLabel']);
+        $list = [];
+        $list = $this->buildListItems($symbols, $config);
+
+        if ($hideLabel) {
+            $this->listWithoutLabel($list, $config, $return);
+
+        } else {
+            $this->listWithLabel($list, $config, $return);
+
+        }
+
+        return implode("\n\n", $return);
+    }
+
+    private function buildListItems($symbols, $config = [], &$return = [])
+    {
         $list = [];
         foreach ($symbols as $category => $value) {
             $list[$category] = [];
@@ -162,11 +189,11 @@ trait DefinesSymbols
             }
             $list[$category] = $strings;
         }
-        $this->labelForList($list, $config, $return);
-        return implode("\n\n", $return);
+        $return = $list;
+        return $list;
     }
 
-    private function labelForList($list, $config, &$return)
+    private function listWithLabel($list, $config, &$return)
     {
         $listType = $config['LIST_TYPE'];
         foreach ($list as $category => $symbolStrings) {
@@ -177,15 +204,33 @@ trait DefinesSymbols
                 $labelText = (isset($config['label']))
                     ? $config['label']
                     : ($category == 'NO_CATEGORY')
-                        ? 'Miscellaneous'
+                        ? static::$noCategoryString
                         : $category;
                 $return[] = Html5Gen::$labelWrapper([
                         'content' => $labelText
                     ]);
 
-                $return[] = Html5Gen::$listType(['content' => $symbolStrings]);
+                $return[] = Html5Gen::$listType([
+                        'content' => $symbolStrings,
+                        'class' => (isset($config['listClass'])) ? $config['listClass'] : ''
+                    ]);
             }
         }
+    }
+
+    private function listWithoutLabel($list, $config, &$return)
+    {
+        $listType = $config['LIST_TYPE'];
+        $strings = [];
+        foreach ($list as $category => $symbolStrings) {
+            foreach ($symbolStrings as $string) {
+                $strings[] = $string;
+            }
+        }
+        $return[] = Html5Gen::$listType([
+                'content' => $strings,
+                'class' => (isset($config['listClass'])) ? $config['listClass'] : ''
+            ]);
     }
 
     /**
@@ -261,7 +306,33 @@ trait DefinesSymbols
             ? 'li'
             : 'dt';
         foreach ($symbols as $key => $symbol) {
-            $termContent = $symbol->largeDeclaration;
+            $termContent = '';
+            if (isset($config['declaration']) && isset($config['declaration']['size'])) {
+                $termSize = $config['declaration']['size'];
+                $asHtml = (isset($config['declaration']['html']))
+                    ? $config['declaration']['html']
+                    : true;
+                $withLink = (isset($config['declaration']['link']))
+                    ? $config['declaration']['link']
+                    : true;
+                $keywords = (isset($config['declaration']['keywords']))
+                    ? $config['declaration']['keywords']
+                    : true;
+
+                $call = $termSize .'Declaration';
+                if ($termSize == 'micro') {
+                    $termContent = $symbol->$call($asHtml, $withLink, $keywords);
+
+                } else {
+                    $termContent = $symbol->$call($asHtml, $withLink);
+
+                }
+
+            } else {
+                $termContent = $symbol->largeDeclaration;
+
+            }
+
             if ($symbol->isDeprecated) {
                 $termContent = [
                     'element' => 'del',
