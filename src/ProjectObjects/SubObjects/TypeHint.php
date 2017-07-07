@@ -9,7 +9,7 @@ use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
 use phpDocumentor\Reflection\DocBlock\Tag\ReturnTag;
 
 use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\Parameter;
-use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\ClassMethod;
+use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\Method;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;

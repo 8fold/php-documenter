@@ -2,7 +2,7 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
-use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
+use Eightfold\DocumenterPhp\ProjectObjects\Method;
 use Eightfold\DocumenterPhp\ProjectObjects\Property;
 
 trait HasSymbols

@@ -2,7 +2,7 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
-use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
+use Eightfold\DocumenterPhp\ProjectObjects\Method;
 
 trait HasMethods
 {
@@ -18,7 +18,7 @@ trait HasMethods
      */
     public function methods()
     {
-        return $this->symbolsForProperty('_methods', ClassMethod::class, 'getMethods');
+        return $this->symbolsForProperty('_methods', Method::class, 'getMethods');
     }
 
     /**

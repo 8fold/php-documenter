@@ -8,7 +8,7 @@ use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 use phpDocumentor\Reflection\FunctionReflector\ArgumentReflector;
 
 use Eightfold\DocumenterPhp\Project;
-use Eightfold\DocumenterPhp\ProjectObjects\ClassMethod;
+use Eightfold\DocumenterPhp\ProjectObjects\Method;
 use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\TypeHint;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
@@ -32,7 +32,7 @@ class Parameter extends ArgumentReflector implements HasDeclarations
 
     private $types = [];
 
-    public function __construct(ClassMethod $method, ArgumentReflector $reflector)
+    public function __construct(Method $method, ArgumentReflector $reflector)
     {
         $this->method = $method;
         // $this->project = $this->method->class->project;

@@ -21,7 +21,7 @@ use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 /**
  * @category Symbols
  */
-class ClassMethod extends MethodReflector implements HasDeclarations
+class Method extends MethodReflector implements HasDeclarations
 {
     use Gettable,
         DocBlocked,
