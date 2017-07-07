@@ -4,6 +4,7 @@ namespace Eightfold\DocumenterPhp\ProjectObjects;
 
 use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+use League\CommonMark\CommonMarkConverter;
 
 use phpDocumentor\Reflection\ClassReflector\MethodReflector;
 
@@ -15,6 +16,7 @@ use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
@@ -26,7 +28,8 @@ class Method extends MethodReflector implements HasDeclarations
     use Gettable,
         DocBlocked,
         Sluggable,
-        ClassSubObject;
+        ClassSubObject,
+        HasInheritance;
 
     private $parameters = [];
 
@@ -51,13 +54,38 @@ class Method extends MethodReflector implements HasDeclarations
 
     public function parameters()
     {
-        $parameters = $this->reflector->getArguments();
         if (count($this->parameters) == 0) {
+            $parameters = $this->reflector->getArguments();
             foreach($parameters as $parameter) {
                 $this->parameters[] = new Parameter($this, $parameter);
             }
         }
         return $this->parameters;
+    }
+
+    public function definitionListForParameters()
+    {
+        $listItems = [];
+        foreach ($this->parameters as $parameter) {
+            $listItems[] = [
+                'element' => 'dt',
+                'config' => [
+                    'content' => $parameter->mediumDeclaration(),
+                    'class' => 'code'
+                ]
+            ];
+
+            $converter = new CommonMarkConverter();
+            $content = $converter->convertToHtml($parameter->shortDescription ."\n\n". $parameter->discussion);
+            $listItems[] = [
+                'element' => 'dd',
+                'config' => ['content' => $content]
+            ];
+        }
+
+        return Html5Gen::dl([
+                'content' => $listItems
+            ]);
     }
 
     public function returnType()

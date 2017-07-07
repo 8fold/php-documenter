@@ -2,6 +2,9 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\Html5Gen\Html5Gen;
+use League\CommonMark\CommonMarkConverter;
+
 use Eightfold\DocumenterPhp\ProjectObjects\SubObjects\Parameter;
 
 trait DocBlocked
@@ -83,6 +86,20 @@ trait DocBlocked
             return $this->docBlock()->getShortDescription();
         }
         return '';
+    }
+
+    public function leadInDescription()
+    {
+        $converter = new CommonMarkConverter();
+
+        $deprecated = Html5Gen::p([
+                'class' => 'deprecated-warning',
+                'content' => $converter->convertToHtml($this->deprecatedDescription)
+            ]);
+
+        $regular = $converter->convertToHtml($this->shortDescription);
+
+        return $deprecated . $regular;
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\Html5Gen\Html5Gen;
+
 use Eightfold\DocumenterPhp\ProjectObjects\Class_;
 use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
 use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
@@ -27,6 +29,9 @@ trait HasInheritance
             } elseif (static::class == Interface_::class) {
                 $parentNamespace = $this->reflector->getParentInterfaces();
 
+            } elseif (isset($this->class)) {
+                $parentNamespace = '\\'. $this->class->fullName;
+
             }
 
             if (strlen($parentNamespace) == 0) {
@@ -35,11 +40,53 @@ trait HasInheritance
 
             if ($parent = $this->project->objectWithFullName($parentNamespace)) {
                 $this->parent = $parent;
+
+            } else {
+                $parts = explode('\\', $parentNamespace);
+                $this->parent = new ClassExternal($parts);
+
             }
-            $parts = explode('\\', $parentNamespace);
-            $this->parent = new ClassExternal($parts);
         }
         return $this->parent;
+    }
+
+    public function parentDefinitionList()
+    {
+        $listItems = [];
+        if ($this->parent()->isInProjectSpace) {
+            $listItems[] = [
+                'element' => 'dt',
+                'config' => [
+                    'content' => $this->parent->smallDeclaration
+                ]
+            ];
+
+            $listItems[] = [
+                'element' => 'dd',
+                'config' => [
+                    'content' => $this->parent->shortDescription
+                ]
+            ];
+
+        } else {
+            $listItems[] = [
+                'element' => 'dt',
+                'config' => [
+                    'content' => $this->parent->space() .'\\'. $this->parent->name
+                ]
+            ];
+
+            $listItems[] = [
+                'element' => 'dd',
+                'config' => [
+                    'content' => 'Note: The parent is not within the scope of this codebase.'
+                ]
+            ];
+        }
+
+        return Html5Gen::dl([
+                'content' => $listItems
+            ]);
     }
 
     /**

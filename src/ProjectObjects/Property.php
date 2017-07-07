@@ -12,6 +12,7 @@ use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
 
 /**
  * @category Symbols
@@ -21,7 +22,8 @@ class Property extends PropertyReflector implements HasDeclarations
     use Gettable,
         DocBlocked,
         Sluggable,
-        ClassSubObject;
+        ClassSubObject,
+        HasInheritance;
 
     static private $urlProjectObjectName = 'properties';
 
@@ -33,6 +35,7 @@ class Property extends PropertyReflector implements HasDeclarations
     public function __construct($class, PropertyReflector $reflector)
     {
         $this->class = $class;
+        $this->project = $this->class->project;
         $this->reflector = $reflector;
 
         // Setting `node` on ClassReflector
