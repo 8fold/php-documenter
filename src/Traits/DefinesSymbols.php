@@ -64,6 +64,7 @@ trait DefinesSymbols
      * @return [type]             [description]
      */
     abstract protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return);
+
     public function symbolNavigator($buttonSymbol = null, $includeButton = true)
     {
         $button = [];
