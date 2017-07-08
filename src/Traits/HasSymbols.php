@@ -2,6 +2,8 @@
 
 namespace Eightfold\DocumenterPhp\Traits;
 
+use Eightfold\Html5Gen\Html5Gen;
+
 use Eightfold\DocumenterPhp\ProjectObjects\Method;
 use Eightfold\DocumenterPhp\ProjectObjects\Property;
 

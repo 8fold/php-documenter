@@ -22,17 +22,7 @@ trait HasInheritance
     public function parent()
     {
         if (is_null($this->parent)) {
-            $parentNamespace = '';
-            if (static::class == Class_::class) {
-                $parentNamespace = $this->reflector->getParentClass();
-
-            } elseif (static::class == Interface_::class) {
-                $parentNamespace = $this->reflector->getParentInterfaces();
-
-            } elseif (isset($this->class)) {
-                $parentNamespace = '\\'. $this->class->fullName;
-
-            }
+            $parentNamespace = $this->parentFullName;
 
             if (strlen($parentNamespace) == 0) {
                 return null;
@@ -52,6 +42,7 @@ trait HasInheritance
 
     public function parentDefinitionList()
     {
+        // dump($this->parent);
         $listItems = [];
         if ($this->parent()->isInProjectSpace) {
             $listItems[] = [
@@ -72,7 +63,7 @@ trait HasInheritance
             $listItems[] = [
                 'element' => 'dt',
                 'config' => [
-                    'content' => $this->parent->space() .'\\'. $this->parent->name
+                    'content' => $this->parent->space .'\\'. $this->parent->name
                 ]
             ];
 
@@ -89,6 +80,25 @@ trait HasInheritance
             ]);
     }
 
+    public function parentBreadcrumbs($withLink = true)
+    {
+        $crumbs = [];
+        foreach ($this->inheritance as $object) {
+            // $withLink = ($this !== $object);
+            $crumbs[] = [
+                'element' => 'span',
+                'config' => [
+                    'content' => $object->microDeclaration(false, $withLink, false),
+                    'class' => 'separated'
+                ]
+            ];
+        }
+        return Html5Gen::span([
+                'content' => array_reverse($crumbs),
+                'class' => 'object-navigator'
+            ]);
+    }
+
     /**
      * [inheritance description]
      * @return [type] [description]
@@ -97,7 +107,10 @@ trait HasInheritance
      */
     public function inheritance()
     {
-        return $this->parentRecursive($this);
+        // dd($this->parent);
+        $objects = [];
+        $this->parentRecursive($this, $objects);
+        return $objects;
     }
 
     /**
@@ -108,14 +121,15 @@ trait HasInheritance
      *
      * @category Get parent class
      */
-    private function parentRecursive($object, $objects = [])
+    private function parentRecursive($object, &$objects = [])
     {
+        // dump($object->name);
         $objects[] = $object;
         $parent = $object->parent();
+        // dump($objects);
         if (!is_null($parent)) {
-            return $this->parentRecursive($parent, $objects);
+            $this->parentRecursive($parent, $objects);
         }
-        return array_reverse($objects);
     }
 
     /**
@@ -137,6 +151,17 @@ trait HasInheritance
      */
     private function parentFullName()
     {
-        return $this->getParentClass();
+        $return = '';
+        if (static::class == Class_::class) {
+            $return = $this->reflector->getParentClass();
+
+        } elseif (static::class == Interface_::class) {
+            $return = $this->reflector->getParentInterfaces();
+
+        } elseif (isset($this->class)) {
+            $return = '\\'. $this->class->fullName;
+
+        }
+        return $return;
     }
 }

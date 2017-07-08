@@ -35,7 +35,7 @@ trait DefinesSymbols
      *
      * @return array [description]
      */
-    abstract static protected function definesSymbolsDefaultConfig();
+    abstract protected function definesSymbolsDefaultConfig();
 
     /**
      * Interception point for customizing configurations and anything else really.
@@ -64,6 +64,40 @@ trait DefinesSymbols
      * @return [type]             [description]
      */
     abstract protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return);
+    public function symbolNavigator($buttonSymbol = null, $includeButton = true)
+    {
+        $button = [];
+        if (count($this->symbolsCategorized) > 0 && $includeButton && !is_null($buttonSymbol)) {
+            $italic = '<i class="fa fa-angle-down" aria-hidden="true"></i>';
+            $button = [
+                'element' => 'button',
+                'config' => [
+                    'class' => 'collapsable',
+                    'content' => $italic . $buttonSymbol->microDeclaration(false, false)
+                ]
+            ];
+
+        }
+
+        $list = $this->unorderedListForSymbols($this->symbolsCategorized, [
+                'listClass' => 'collapsed',
+                'attributes' => [
+                    'aria-hidden' => true
+                ],
+                'showLabel' => false,
+                'declaration' => [
+                    'size' => 'mini',
+                    'html' => false,
+                    'link' => true,
+                    'keywords' => true
+                ]
+            ]);
+
+        return Html5Gen::span([
+                'class' => 'symbols-navigator separated',
+                'content' => [$button, $list]
+            ]);
+    }
 
     /**
      * This is the call site for getting a definition list of the symbols.
@@ -121,6 +155,7 @@ trait DefinesSymbols
      *                       mini, and micro. There three optional keys (html, link,
      *                       and keywords), which take booleans as the value; see the
      *                       definitions for these methods for more details.
+     * - **attributes:**     Dictionary of attributes to add to the list element.
      *
      * @param  array $config   [description]
      * @param  array $symbols  [description]

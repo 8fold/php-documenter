@@ -13,6 +13,11 @@ trait Gettable
      */
     public function __get($name)
     {
+        // $class = get_class($this);
+        // print("\n\n". $class ."\n");
+        // print($name ."\n");
+        // print((method_exists($this, $name)) ? 'true' : 'false');
+
         // Exists with the same name as the one being evaluated. If it does, call
         // the method, set the instance variable, and then return the results.
         if (method_exists($this, $name)) {

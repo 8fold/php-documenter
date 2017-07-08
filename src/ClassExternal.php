@@ -2,7 +2,11 @@
 
 namespace Eightfold\DocumenterPhp;
 
+use Eightfold\Html5Gen\Html5Gen;
+
 use Eightfold\DocumenterPhp\Traits\Gettable;
+
+use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
 /**
  * Represents a `class` outside the current project.
@@ -14,7 +18,7 @@ use Eightfold\DocumenterPhp\Traits\Gettable;
  *
  * @category Project object
  */
-class ClassExternal
+class ClassExternal implements HasDeclarations
 {
     use Gettable;
 
@@ -33,6 +37,9 @@ class ClassExternal
      */
     public function __construct($namespaceParts)
     {
+        if (isset($namespaceParts[0]) && strlen($namespaceParts[0]) == 0) {
+            array_shift($namespaceParts);
+        }
         $this->parts = $namespaceParts;
     }
 
@@ -49,6 +56,11 @@ class ClassExternal
         return implode('\\', $copy);
     }
 
+    public function fullName()
+    {
+        return implode('\\', $this->parts);
+    }
+
     /**
      * Last element in `$parts`.
      *
@@ -56,6 +68,7 @@ class ClassExternal
      */
     public function name()
     {
+        // dd(array_pop($this->parts));
         return array_pop($this->parts);
     }
 
@@ -78,5 +91,44 @@ class ClassExternal
     public function parent()
     {
         return null;
+    }
+
+    /**
+     * Displays the most complete representation of the Class definition.
+     *
+     * Ex. class [class-name]
+     *     extends [class-parent]
+     *     implements [class-interfaces]
+     *     has traits [class-traits]
+     *
+     * @return [type] [description]
+     *
+     * @category Declarations
+     */
+    public function largeDeclaration($asHtml = true, $withLink = true)
+    {
+        return Html5Gen::i([
+                'content' => '['. $this->name .']'
+            ]);
+    }
+
+    public function mediumDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->largeDeclaration;
+    }
+
+    public function smallDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->largeDeclaration;
+    }
+
+    public function miniDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->largeDeclaration;
+    }
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
+    {
+        return $this->largeDeclaration;
     }
 }

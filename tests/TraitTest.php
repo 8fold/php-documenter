@@ -16,7 +16,7 @@ class TraitTest extends BaseTest
         $object = $project->objectWithFullName(Class_::class);
         $object = $object->traits[0];
         $declaration = $object->largeDeclaration;
-        $expected = '<span class="trait">trait</span> Gettable';
+        $expected = '<a class="call-signature" href="/documenter-php/v0-0-0/eightfold-documenterphp-traits/traits/gettable"><span class="trait">trait</span> Gettable</a>';
         $this->assertTrue($declaration == $expected, 'declaration: '. $declaration);
     }
 }

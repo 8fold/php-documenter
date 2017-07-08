@@ -9,8 +9,6 @@ trait HasObjects
 {
     private $interfaces = [];
 
-    protected $traits = [];
-
     /**
      * [interfaces description]
      * @return [type] [description]

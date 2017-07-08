@@ -465,7 +465,7 @@ class Project
         return $iterator;
     }
 
-    static protected function definesSymbolsDefaultConfig()
+    protected function definesSymbolsDefaultConfig()
     {
         return [
             'symbolOrder' => [
