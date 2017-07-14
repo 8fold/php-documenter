@@ -167,7 +167,9 @@ class Method extends MethodReflector implements HasDeclarations
         $this->parameterString($asHtml, $build);
         $this->returnTypeString($asHtml, $build);
 
-        $built = str_replace([' (', '( ', ' :'], ['(', '([type]', ':'], implode(' ', $build));
+        $typeHintSpan = Html5Gen::span(['class' => 'typehint', 'content' => '[type] ']);
+
+        $built = str_replace([' (', '( ', ' :'], ['(', '('. $typeHintSpan, ':'], implode(' ', $build));
         if ($withLink) {
             return Html5Gen::a([
                 'class' => 'call-signature',
@@ -188,7 +190,9 @@ class Method extends MethodReflector implements HasDeclarations
         $build[] = $this->name;
         $this->parameterString($asHtml, $build);
 
-        $built = str_replace([' (', '( ', ' :'], ['(', '([type]', ':'], implode(' ', $build));
+        $typeHintSpan = Html5Gen::span(['class' => 'typehint', 'content' => '[type] ']);
+
+        $built = str_replace([' (', '( ', ' :'], ['(', '('. $typeHintSpan, ':'], implode(' ', $build));
         if ($withLink) {
             return Html5Gen::a([
                 'class' => 'call-signature',

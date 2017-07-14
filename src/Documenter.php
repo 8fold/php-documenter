@@ -29,7 +29,7 @@ class Documenter
      * @param string $path     The full path on disk to the folder containing all the
      *                         projects for Documenter to be aware of.
      * @param array  $projects A dictionary of the projects for this Documenter
-     *                         instance to pay attentioned to. The key is the
+     *                         instance to pay attention to. The key is the
      *                         URL-friendly directory name for the project. The value
      *                         is the human-friendly name of the project. (All other
      *                         project folders will be ignored.)

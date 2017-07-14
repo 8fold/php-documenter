@@ -68,8 +68,8 @@ class ClassExternal implements HasDeclarations
      */
     public function name()
     {
-        // dd(array_pop($this->parts));
-        return array_pop($this->parts);
+        $copy = $this->parts;
+        return array_pop($copy);
     }
 
     /**
@@ -108,27 +108,27 @@ class ClassExternal implements HasDeclarations
     public function largeDeclaration($asHtml = true, $withLink = true)
     {
         return Html5Gen::i([
-                'content' => '['. $this->name .']'
+                'content' => '['. $this->name() .']'
             ]);
     }
 
     public function mediumDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->largeDeclaration;
+        return $this->largeDeclaration();
     }
 
     public function smallDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->largeDeclaration;
+        return $this->largeDeclaration();
     }
 
     public function miniDeclaration($asHtml = true, $withLink = true)
     {
-        return $this->largeDeclaration;
+        return $this->largeDeclaration();
     }
 
     public function microDeclaration($asHtml = true, $withLink = true, $showKeyword = true)
     {
-        return $this->largeDeclaration;
+        return $this->largeDeclaration();
     }
 }
