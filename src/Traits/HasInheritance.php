@@ -22,7 +22,7 @@ trait HasInheritance
     public function parent()
     {
         if (is_null($this->parent)) {
-            $parentNamespace = $this->parentFullName;
+            $parentNamespace = $this->parentFullName();
 
             if (strlen($parentNamespace) == 0) {
                 return null;
@@ -42,7 +42,6 @@ trait HasInheritance
 
     public function parentDefinitionList()
     {
-        // dump($this->parent);
         $listItems = [];
         if ($this->parent()->isInProjectSpace) {
             $listItems[] = [
@@ -83,8 +82,7 @@ trait HasInheritance
     public function parentBreadcrumbs($withLink = true)
     {
         $crumbs = [];
-        foreach ($this->inheritance as $object) {
-            // $withLink = ($this !== $object);
+        foreach ($this->inheritance() as $object) {
             $crumbs[] = [
                 'element' => 'span',
                 'config' => [
@@ -107,7 +105,6 @@ trait HasInheritance
      */
     public function inheritance()
     {
-        // dd($this->parent);
         $objects = [];
         $this->parentRecursive($this, $objects);
         return $objects;
@@ -123,10 +120,8 @@ trait HasInheritance
      */
     private function parentRecursive($object, &$objects = [])
     {
-        // dump($object->name);
         $objects[] = $object;
         $parent = $object->parent();
-        // dump($objects);
         if (!is_null($parent)) {
             $this->parentRecursive($parent, $objects);
         }

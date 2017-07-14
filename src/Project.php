@@ -153,8 +153,6 @@ class Project
         ];
 
         $listItems = [];
-        // dd($this->versions());
-
         foreach ($this->versions() as $slug => $version) {
             if (is_null($version)) {
                 $version = $this->versionWithSlug($slug);
