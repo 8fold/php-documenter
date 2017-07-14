@@ -19,7 +19,7 @@ class InheritanceTest extends BaseTest
 
     public function object($classNamespace)
     {
-        $project = new Project($this->versionPath());
+        $project = $this->version();
         return $project->objectWithFullName($classNamespace);
     }
 

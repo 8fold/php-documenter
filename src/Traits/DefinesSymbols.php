@@ -64,6 +64,7 @@ trait DefinesSymbols
      * @return [type]             [description]
      */
     abstract protected function processSymbolTypeForCategory($category, $symbols, $symbolType, $config, &$return);
+
     public function symbolNavigator($buttonSymbol = null, $includeButton = true)
     {
         $button = [];
@@ -235,7 +236,7 @@ trait DefinesSymbols
             if (count($symbolStrings) > 0) {
                 $labelWrapper = (isset($config['labelWrapper']))
                     ? $config['labelWrapper']
-                    : 'h2';
+                    : 'h3';
                 $labelText = (isset($config['label']))
                     ? $config['label']
                     : ($category == 'NO_CATEGORY')
@@ -293,12 +294,8 @@ trait DefinesSymbols
         }
         $hasOnly = (count($onlyCategories) > 0);
         $inOnly = in_array($category, $onlyCategories);
-        // print($category);
-        // print($hasOnly);
-        // print($inOnly);
 
         if ($hasOnly && $inOnly) {
-            // print('should process');
             return true;
         }
 
@@ -308,14 +305,10 @@ trait DefinesSymbols
         }
         $hasSkipped = (count($skippedCategories) > 0);
         $inSkipped = in_array($category, $skippedCategories);
-        // print($hasSkipped);
-        // print($inSkipped);
 
         if (($hasOnly && !$inSkipped) || ($hasSkipped && $inSkipped)) {
-            // print('skipping');
             return false;
         }
-        // print('default process');
         return true;
     }
 

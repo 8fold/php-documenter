@@ -38,9 +38,9 @@ class TypeHint extends ParamTag
         $this->_type = $type;
     }
 
-    private function project()
+    private function version()
     {
-        return $this->parameterOrMethod->project;
+        return $this->parameterOrMethod->version;
     }
 
     public function displayString($asHtml = false, $withLink = false)
@@ -51,7 +51,7 @@ class TypeHint extends ParamTag
             $types = explode('|', $content);
             $displayStrings = [];
             foreach ($types as $typeString) {
-                if ($class = $this->project->objectWithFullName($typeString)) {
+                if ($class = $this->version->objectWithFullName($typeString)) {
                     $displayStrings[] = $class->microDeclaration(false, $withLink, false);
 
                 } else {

@@ -7,7 +7,7 @@ use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 
 use phpDocumentor\Reflection\TraitReflector;
 
-use Eightfold\DocumenterPhp\Project;
+use Eightfold\DocumenterPhp\Version;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
@@ -46,13 +46,13 @@ class Trait_ extends TraitReflector implements HasDeclarations
 
     static private $urlProjectObjectName = 'traits';
 
-    private $project = null;
+    private $version = null;
 
     private $reflector = null;
 
-    public function __construct(Project $project, TraitReflector $reflector)
+    public function __construct(Version $version, TraitReflector $reflector)
     {
-        $this->project = $project;
+        $this->version = $version;
         $this->reflector = $reflector;
 
         // Setting `node` on InterfaceReflector

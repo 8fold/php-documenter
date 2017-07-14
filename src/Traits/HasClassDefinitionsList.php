@@ -40,7 +40,7 @@ trait HasClassDefinitionsList
     {
         if (count($config['accessOrder']) > 0) {
             foreach ($config['accessOrder'] as $access) {
-                if (isset($symbols[$access])) {
+                if (in_array($access, $this->version->project->documenter->maxVisibility) && isset($symbols[$access])) {
                     $symbolsToProcess = $symbols[$access];
                     $return[] = $this->processSymbolsDefinitionForCategory($category, $symbolsToProcess, $config);
                 }

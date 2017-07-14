@@ -12,7 +12,7 @@ class InterfaceTest extends BaseTest
 {
     public function testClassTraitLargeDeclaration()
     {
-        $project = new Project($this->versionPath());
+        $project = $this->version();
         $object = $project->objectWithFullName(Class_::class);
         $object = $object->interfaces[0];
         $declaration = $object->largeDeclaration;

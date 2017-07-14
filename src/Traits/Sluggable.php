@@ -36,7 +36,7 @@ trait Sluggable
     {
         $build = [];
         if (static::class == Class_::class || static::class == Trait_::class || static::class == Interface_::class) {
-            $build[] = $this->project->url;
+            $build[] = $this->version->url;
             $build[] = StringHelpers::namespaceToSlug($this->space);
 
         } else {
