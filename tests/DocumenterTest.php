@@ -2,45 +2,20 @@
 
 namespace Eightfold\DocumenterPhp\tests;
 
-use Eightfold\DocumenterPhp\Tests\BaseTest;
-
 use Eightfold\DocumenterPhp\Documenter;
 
 use Eightfold\DocumenterPhp\Project;
 use Eightfold\DocumenterPhp\Version;
 
+use Eightfold\DocumenterPhp\Tests\BaseTest;
+
 class DocumenterTest extends BaseTest
 {
-    protected function documenter()
-    {
-        $documenter = new Documenter($this->basePath(), [
-                'documenter-php' => 'Documenter for PHP'
-            ]);
-        $this->assertNotNull($documenter);
-        return $documenter;
-    }
-    protected function project()
-    {
-        $documenter = $this->documenter();
-        $projects = $documenter->projects;
-        $this->assertTrue(count($projects) == 1);
-
-        return $documenter->projectWithSlug('documenter-php');
-    }
-
-    protected function version()
-    {
-        $project = $this->project();
-        $this->assertTrue(count($project->versions) == 1, 'did not find versions');
-
-        return $project->versionWithSlug('v0-0-0');
-    }
-
     public function testDocumenterInstantiatesProject()
     {
         $project = $this->project();
         $this->assertNotNull($project);
-        $this->assertTrue(get_class($project) == Project::class);
+        $this->assertTrue(get_class($project) == Project::class, get_class($project));
     }
 
     public function testDocumenterProjectInstantiatesVersion()

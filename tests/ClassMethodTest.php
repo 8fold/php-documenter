@@ -11,7 +11,7 @@ class ClassMethodTest extends BaseTest
 {
     public function testClassMethodLargeDeclaration()
     {
-        $project = new Project($this->versionPath());
+        $project = $this->version();
         $object = $project->objectWithFullName(Project::class);
         $method = $object->methodWithName('projectPaths');
         $declaration = $method->largeDeclaration();
@@ -21,7 +21,7 @@ class ClassMethodTest extends BaseTest
 
     public function testClassMethodLargeDeclarationReturnType()
     {
-        $project = new Project($this->versionPath());
+        $project = $this->version();
         $object = $project->objectWithFullName(Project::class);
         $method = $object->methodWithName('url');
         $declaration = $method->largeDeclaration();
@@ -31,7 +31,7 @@ class ClassMethodTest extends BaseTest
 
     public function testClassMethodLargeDeclarationReturnProjectClass()
     {
-        $project = new Project($this->versionPath());
+        $project = $this->version();
         $object = $project->objectWithFullName(Project::class);
         $method = $object->methodWithName('objectWithFullName');
         $declaration = $method->largeDeclaration();

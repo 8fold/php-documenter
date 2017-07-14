@@ -43,4 +43,16 @@ trait HasProperties
     {
         return $this->symbolWithName('properties', $name);
     }
+
+    /**
+     * [methodWithSlug description]
+     * @param  [type] $slugName [description]
+     * @return [type]           [description]
+     *
+     * @category Get methods for class
+     */
+    public function propertyWithSlug($slugName)
+    {
+        return $this->objectWithSlug($slugName, $this->properties());
+    }
 }

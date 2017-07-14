@@ -27,6 +27,8 @@ class Property extends PropertyReflector implements HasDeclarations
 
     static private $urlProjectObjectName = 'properties';
 
+    private $version = null;
+
     /**
      * [__construct description]
      * @param \Eightfold\DocumenterPhp\ProjectObjects\Class_|\Eightfold\DocumenterPhp\ProjectObjects\Trait_|\Eightfold\DocumenterPhp\ProjectObjects\Interface_            $class     [description]
@@ -35,7 +37,7 @@ class Property extends PropertyReflector implements HasDeclarations
     public function __construct($class, PropertyReflector $reflector)
     {
         $this->class = $class;
-        $this->project = $this->class->project;
+        $this->version = $this->class->version;
         $this->reflector = $reflector;
 
         // Setting `node` on ClassReflector

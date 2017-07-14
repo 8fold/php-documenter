@@ -28,7 +28,7 @@ trait HasInheritance
                 return null;
             }
 
-            if ($parent = $this->project->objectWithFullName($parentNamespace)) {
+            if ($parent = $this->version->objectWithFullName($parentNamespace)) {
                 $this->parent = $parent;
 
             } else {

@@ -93,10 +93,10 @@ trait HasSymbols
             // Sort symbols alphabetically by name.
             foreach ($build as $category => $accessLevels) {
                 foreach ($accessLevels as $access => $symbolTypes) {
-                    foreach ($symbolTypes as $symbolType => $symbols);
-                    ksort($symbols);
-                    $build[$category][$access][$symbolType] = $symbols;
-
+                    foreach ($symbolTypes as $symbolType => $symbols) {
+                        ksort($symbols);
+                        $build[$category][$access][$symbolType] = $symbols;
+                    }
                 }
             }
             $this->{$propertyName} = $build;

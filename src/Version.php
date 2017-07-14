@@ -2,17 +2,12 @@
 
 namespace Eightfold\DocumenterPhp;
 
-// // Project paths
-// use \DirectoryIterator;
-
 // Files for project
 use \RecursiveDirectoryIterator;
 use \RecursiveCallbackFilterIterator;
 use \FilesystemIterator;
 
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
-
-// use Eightfold\DocumenterPhp\File;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DefinesSymbols;
@@ -22,7 +17,6 @@ use Eightfold\DocumenterPhp\ProjectObjects\Trait_;
 use Eightfold\DocumenterPhp\ProjectObjects\Interface_;
 
 use Eightfold\Documenter\Php\Method;
-// use Eightfold\Documenter\Php\Property;
 
 class Version
 {
@@ -59,6 +53,11 @@ class Version
         $this->ignore = $ignore;
     }
 
+    public function path()
+    {
+        return $this->project->path .'/'. $this->slug;
+    }
+
     public function slug()
     {
         return $this->slug;
@@ -66,7 +65,7 @@ class Version
 
     public function version()
     {
-        return str_replace(['v', '-'], ['', '.'], $this->versionSlug());
+        return str_replace(['v', '-'], ['', '.'], $this->slug);
     }
 
     /**
@@ -318,7 +317,7 @@ class Version
         $follow = FilesystemIterator::FOLLOW_SYMLINKS;
         $directory = new RecursiveDirectoryIterator($this->path .'/'. $this->root, $follow);
         $ignore = $this->ignore;
-        $basePath = $this->basePath;
+        $basePath = $this->project->documenter->path;
 
         $filter = new RecursiveCallbackFilterIterator(
             $directory,

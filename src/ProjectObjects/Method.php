@@ -45,7 +45,7 @@ class Method extends MethodReflector implements HasDeclarations
     public function __construct($class, MethodReflector $reflector)
     {
         $this->class = $class;
-        $this->project = $this->class->project;
+        $this->version = $this->class->version;
         $this->reflector = $reflector;
 
         // Setting `node` on ClassReflector

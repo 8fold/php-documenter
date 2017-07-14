@@ -27,10 +27,10 @@ trait HasObjects
      *
      * @category Get properties for class
      */
-    public function propertyWithSlug($slugName)
-    {
-        return $this->objectWithSlug($slugName, $this->properties());
-    }
+    // public function propertyWithSlug($slugName)
+    // {
+    //     return $this->objectWithSlug($slugName, $this->properties());
+    // }
 
     private function objectWithSlug($slugName, $objects)
     {
@@ -60,7 +60,7 @@ trait HasObjects
         if (count($this->{$instanceProperty}) == 0) {
             $objects = [];
             foreach ($objectFullNames as $objectFullName) {
-                $object = $this->project->objectWithFullName($objectFullName);
+                $object = $this->version->objectWithFullName($objectFullName);
                 if (!is_null($object) && is_a($object, $class)) {
                     $objects[] = $object;
 
