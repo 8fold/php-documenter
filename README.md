@@ -1,7 +1,7 @@
 # Documenter for Php by 8fold
 
 <ul>
-  <li><a hreg="#setup">Setting up</a></li>
+  <li><a href="#setup">Setting up</a></li>
   <li><a href="#definitions">Elements, objects, and symbols</a></li>
   <li><a href="#docblocks">DocBlocks</a></li>
   <li><a href="#routes">Routes</a></li>
