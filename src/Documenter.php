@@ -26,13 +26,20 @@ class Documenter
 
     /**
      * [__construct description]
-     * @param [type] $dirPath  The full path to folder containing all the projects for
-     *                         the Documenter to be aware of.
-     * @param [type] $projects A dictionary of the projects for this Documenter to pay
-     *                         attentioned to. The key is the URL-friendly directory
-     *                         name for the project. The value is the human-friendly
-     *                         name of the project. (All other project folders will be
-     *                         ignored.)
+     * @param string $path     The full path on disk to the folder containing all the
+     *                         projects for Documenter to be aware of.
+     * @param array  $projects A dictionary of the projects for this Documenter
+     *                         instance to pay attentioned to. The key is the
+     *                         URL-friendly directory name for the project. The value
+     *                         is the human-friendly name of the project. (All other
+     *                         project folders will be ignored.)
+     * @param string $maxVisibility public|protected|private Public is default. Limits
+     *                              what access level is visible when using built HTML.
+     * @param string $urlBase       Sub-URL to prefix generated URLs with. Allows for
+     *                              for Documenter to be a "sub-folder" in traditional
+     *                              web development terms. Default is root.
+     * @param string $domain        The domain name for the Documenter instance.
+     *                              Default is empty string.
      */
     public function __construct($path, $projects, $maxVisibility = 'public', $urlBase = '/', $domain = '')
     {

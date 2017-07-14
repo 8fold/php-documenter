@@ -2,6 +2,7 @@
 
 <ul>
   <li><a href="#setup">Setting up</a></li>
+  <li><a href="#initializing">Initializing</a></li>
   <li><a href="#definitions">Elements, objects, and symbols</a></li>
   <li><a href="#docblocks">DocBlocks</a></li>
   <li><a href="#routes">Routes</a></li>
@@ -27,7 +28,7 @@ Add Documenter to a PHP project and deliver the documentation via web-based APIs
 $ composer require 8fold/documenter-php
 ```
 
-Or add the following to the require portion of you composer file and run `composer install` or `composer update`:
+Or add the following to the require portion of your composer file and run `composer install` or `composer update`:
 
 ```json
 "8fold/documenter-php": "*"
@@ -42,8 +43,14 @@ Recommend adding this to your PSR-4 declaration:
 Documenter also uses the following:
 
 - [Html5Gen](https://github.com/8fold/html5-generator-php)
-- [phpDocumentor](https://github.com/phpDocumentor/Reflection) - Once phpDocumentor 2 is released, Documenter's viability (or necessity) will need to be reassessed.
+- [phpDocumentor Reflection](https://github.com/phpDocumentor/Reflection)
 - [The PHP League's CommonMark](https://github.com/thephpleague/commonmark)
+
+<h2 id="initializing">Initializing</h2>
+
+The main entry class for Documenter is, well, the Documenter class found in `/src`; see [documentation](https://github.com/8fold/documenter-php/blob/develop/src/Documenter.php#L27) what information is required. Once initialized, you should be able to traverse things pretty easily. (In relative terms.)
+
+If at any point you get stuck, please either update the documentatin, or let us know, and we will do our best to improve the experience.
 
 <h2 id="definitions">Elements, Objects, and Symbols</h2>
 
@@ -222,43 +229,3 @@ Note: Documenter objects do not generate the following URLs; however, they becom
 Documenter is designed to only instantiate or calculate when absolutely necessary (lazy loading). Documenter is designed to hold onto objects and values once they have been instantiated or calculated (caching).
 
 Documenter has not been performance tested; if performance in live applications ever becomes a noticeable issue, we will do so. Having said that, it is estimated that the longest operation in Documenter is going to be in setting up the initial array of files for a Project.
-
-To start Documenter, you instantiate Project by passing in the path to the project:
-
-```php
-// Path to the directory containing the files to inspect.
-$path = '/path/to/project/version';
-
-// Root 
-// (to help increase performance, only process files within 
-// a cerain root folder).
-$root = '/src';
-
-// Ignore
-// (to help increase performance, tell Documenter to skip 
-// certain files. Note: Only .php files are processed)
-$ignore = ['something.php'];
-
-$project = new Project($path, $root, $ignore);
-```
-
-At this point in the lifecycle, no heavy processing or instantiation has occurred.
-
-```php
-// Get the total number of files being considered in the 
-// project.
-$project->totalFiles;
-```
-
-This fires the loop that iterates through the project folder looking for `.php` files (that takes time). Each time a file is found worther caring about a File object is instantiated (takes time). Each time a File object is instantiated, phpDocumentor's `process()` FileReflector method is fired (takes time). We are talking microseconds here, not whole seconds. Having said that, if we could put off calling `process()` and only firing it once per File instance, we might see a performance gain...but maybe not one worth writing home about.
-
-The reason it may not be worth writing home about is because each File instance is stored in array on the Project object. Further, you typically don't interact with the Files array. Instead, you interact with arrays of objects *within* those Files. And, these are only instantiated when you try to get one of those arrays.
-
-```php
-// Get array of all the classes in the project.
-$classes = $projects->classes();
-```
-
-We loop over all the Files and use phpDocumentor methods to get the classes within the file and instantiate a Class_ object. All the Class_ instances are added to an array for future reference.
-
-Between the performance of phpDocumentor and using these techniques, performance has been a non-issue as of today. If that changes, steps will be taken to improve.
