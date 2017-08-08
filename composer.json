@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=5.6.4",
-        "phpdocumentor/reflection": "3.0.*",
+        "phpdocumentor/reflection": "dev-develop",
         "league/commonmark": ">0.15",
         "8fold/html5-generator-php": "^0.6"
     },

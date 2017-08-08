@@ -7,6 +7,11 @@ use \RecursiveDirectoryIterator;
 use \RecursiveCallbackFilterIterator;
 use \FilesystemIterator;
 
+use phpDocumentor\Reflection\File\LocalFile;
+use phpDocumentor\Reflection\Php\Project as ProjectReflector;
+use phpDocumentor\Reflection\Php\File;
+use phpDocumentor\Reflection\Php\ProjectFactory;
+
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
 
 use Eightfold\DocumenterPhp\Traits\Gettable;
@@ -24,6 +29,8 @@ class Version
         DefinesSymbols;
 
     private $project = null;
+
+    private $projectFactory = null;
 
     private $slug = '';
 
@@ -48,6 +55,7 @@ class Version
     public function __construct($project, $slug, $root = 'src', $ignore = [])
     {
         $this->project = $project;
+        $this->projectFactory = ProjectFactory::createInstance();
         $this->slug = $slug;
         $this->root = $root;
         $this->ignore = $ignore;
@@ -88,15 +96,15 @@ class Version
     {
         if (count($this->files) == 0) {
             $iterator = $this->fileIterator();
-            $files = [];
             foreach ($iterator as $fileInfo) {
-                $file = new File($fileInfo->getPathname());
-                $namespaceSlug = StringHelpers::namespaceToSlug($file->getNamespace());
-                $files[$namespaceSlug][] = $file;
-
+                $path = $fileInfo->getPathname();
+                $localFile = new LocalFile($path);
+                $this->files[] = $localFile;
+                print($path ."\n\n");
+                // if (count($this->files) == 2) {
+                //     break;
+                // }
             }
-            // var_dump(array_keys($files));
-            $this->files = $files;
         }
         return $this->files;
     }
@@ -120,6 +128,12 @@ class Version
      */
     public function classes()
     {
+        $files = $this->files();
+        // die(var_dump($files));
+
+        $project = $this->projectFactory->create($this->project->title, $files);
+        print($this->project->title ."\n\n");
+        die(var_dump($project));
         return $this->objectsForPropertyName('classes', Class_::class, 'getClasses');
     }
 
