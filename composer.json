@@ -1,5 +1,5 @@
 {
-    "name": "8fold/documenter-php",
+    "name": "8fold/php-documenter",
     "description": "A standalone library that wraps phpDocumentor for use with frameworks supporting PHP packages.",
     "license": "MIT",
     "authors": [

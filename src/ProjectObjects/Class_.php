@@ -8,7 +8,7 @@ use League\CommonMark\CommonMarkConverter;
 
 use phpDocumentor\Reflection\ClassReflector;
 
-use Eightfold\DocumenterPhp\Project;
+use Eightfold\DocumenterPhp\Version;
 use Eightfold\DocumenterPhp\ClassExternal;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
@@ -48,13 +48,13 @@ class Class_ extends ClassReflector implements HasDeclarations
 
     static private $urlProjectObjectName = 'classes';
 
-    private $project = null;
+    private $version = null;
 
     private $reflector = null;
 
-    public function __construct(Project $project, ClassReflector $reflector)
+    public function __construct(Version $version, ClassReflector $reflector)
     {
-        $this->project = $project;
+        $this->version = $version;
         $this->reflector = $reflector;
 
         // Setting `node` on ClassReflector
@@ -77,9 +77,9 @@ class Class_ extends ClassReflector implements HasDeclarations
      *
      * @category Get project
      */
-    public function project()
+    public function version()
     {
-        return $this->project;
+        return $this->version;
     }
 
     /**
@@ -91,28 +91,6 @@ class Class_ extends ClassReflector implements HasDeclarations
     public function symbolsCategorized()
     {
         return array_merge_recursive($this->propertiesCategorized(), $this->methodsCategorized());
-    }
-
-    /**
-     * [parentName description]
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    private function parentName()
-    {
-        return $this->nameStringFromFullName($this->parentFullName());
-    }
-
-    /**
-     * [parentFullName description]
-     * @return [type] [description]
-     *
-     * @category Strings
-     */
-    private function parentFullName()
-    {
-        return $this->getParentClass();
     }
 
     /**
@@ -365,7 +343,7 @@ class Class_ extends ClassReflector implements HasDeclarations
     {
         $parts = explode('\\', $fullName);
         $name = array_pop($parts);
-        if (strlen($this->getParentClass()) > 0 && is_null($this->project->objectWithFullName($fullName))) {
+        if (strlen($this->getParentClass()) > 0 && is_null($this->version->objectWithFullName($fullName))) {
             return '['. $name .']';
 
         } elseif (strlen($name) > 0) {

@@ -48,9 +48,4 @@ trait ClassSubObject
 
         }
     }
-
-    public function declaredBy()
-    {
-        return $this->class;
-    }
 }

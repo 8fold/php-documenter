@@ -1,6 +1,6 @@
 <?php
 
-namespace Eightfold\DocumenterPhp\Traits;
+namespace Eightfold\DocumenterPhp\Interfaces;
 
 interface HasDeclarations
 {

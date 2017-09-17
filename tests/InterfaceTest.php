@@ -12,11 +12,11 @@ class InterfaceTest extends BaseTest
 {
     public function testClassTraitLargeDeclaration()
     {
-        $project = new Project($this->versionPath());
+        $project = $this->version();
         $object = $project->objectWithFullName(Class_::class);
         $object = $object->interfaces[0];
         $declaration = $object->largeDeclaration;
-        $expected = '<span class="interface">interface</span> HasDeclarations';
+        $expected = '<a class="call-signature" href="/documenter-php/v0-0-0/eightfold-documenterphp-interfaces/interfaces/hasdeclarations"><span class="trait">trait</span> HasDeclarations</a>';
         $this->assertTrue($declaration == $expected, 'declaration: '. $declaration);
     }
 }

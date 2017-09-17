@@ -12,6 +12,7 @@ use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
 
 /**
  * @category Symbols
@@ -21,9 +22,12 @@ class Property extends PropertyReflector implements HasDeclarations
     use Gettable,
         DocBlocked,
         Sluggable,
-        ClassSubObject;
+        ClassSubObject,
+        HasInheritance;
 
     static private $urlProjectObjectName = 'properties';
+
+    private $version = null;
 
     /**
      * [__construct description]
@@ -33,6 +37,7 @@ class Property extends PropertyReflector implements HasDeclarations
     public function __construct($class, PropertyReflector $reflector)
     {
         $this->class = $class;
+        $this->version = $this->class->version;
         $this->reflector = $reflector;
 
         // Setting `node` on ClassReflector
@@ -62,15 +67,38 @@ class Property extends PropertyReflector implements HasDeclarations
         return $build;
     }
 
-
-    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    public function mediumDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
         $this->staticString($asHtml, $build);
         $this->accessString($asHtml, $build);
         $build[] = '$'. $this->name;
 
-        $base = implode(' ', $build);
+        $build = implode(' ', $build);
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $build,
+                'href' => $this->url()
+            ]);
+        }
+        return $build;
+    }
+
+    public function smallDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->mediumDeclaration($asHtml, $withLink);
+    }
+
+    public function miniDeclaration($asHtml = true, $withLink = true)
+    {
+        return $this->smallDeclaration($asHtml, $withLink);
+    }
+
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    {
+        $base = $this->miniDeclaration($asHtml, $withLink);
 
         $replace = [
             '>abstract<',

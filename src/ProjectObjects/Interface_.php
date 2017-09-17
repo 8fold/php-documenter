@@ -4,7 +4,7 @@ namespace Eightfold\DocumenterPhp\ProjectObjects;
 
 use phpDocumentor\Reflection\InterfaceReflector;
 
-use Eightfold\DocumenterPhp\Project;
+use Eightfold\DocumenterPhp\Version;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
@@ -43,13 +43,13 @@ class Interface_ extends InterfaceReflector implements HasDeclarations
 
     static private $urlProjectObjectName = 'interfaces';
 
-    private $project = null;
+    private $version = null;
 
     private $reflector = null;
 
-    public function __construct(Project $project, InterfaceReflector $reflector)
+    public function __construct(Version $version, InterfaceReflector $reflector)
     {
-        $this->project = $project;
+        $this->version = $version;
         $this->reflector = $reflector;
 
         // Setting `node` on InterfaceReflector

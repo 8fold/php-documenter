@@ -4,6 +4,7 @@ namespace Eightfold\DocumenterPhp\ProjectObjects;
 
 use Eightfold\Html5Gen\Html5Gen;
 use Eightfold\DocumenterPhp\Helpers\StringHelpers;
+use League\CommonMark\CommonMarkConverter;
 
 use phpDocumentor\Reflection\ClassReflector\MethodReflector;
 
@@ -15,6 +16,7 @@ use Eightfold\DocumenterPhp\Traits\Gettable;
 use Eightfold\DocumenterPhp\Traits\DocBlocked;
 use Eightfold\DocumenterPhp\Traits\ClassSubObject;
 use Eightfold\DocumenterPhp\Traits\Sluggable;
+use Eightfold\DocumenterPhp\Traits\HasInheritance;
 
 use Eightfold\DocumenterPhp\Interfaces\HasDeclarations;
 
@@ -26,7 +28,8 @@ class Method extends MethodReflector implements HasDeclarations
     use Gettable,
         DocBlocked,
         Sluggable,
-        ClassSubObject;
+        ClassSubObject,
+        HasInheritance;
 
     private $parameters = [];
 
@@ -42,7 +45,7 @@ class Method extends MethodReflector implements HasDeclarations
     public function __construct($class, MethodReflector $reflector)
     {
         $this->class = $class;
-        $this->project = $this->class->project;
+        $this->version = $this->class->version;
         $this->reflector = $reflector;
 
         // Setting `node` on ClassReflector
@@ -51,13 +54,38 @@ class Method extends MethodReflector implements HasDeclarations
 
     public function parameters()
     {
-        $parameters = $this->reflector->getArguments();
         if (count($this->parameters) == 0) {
+            $parameters = $this->reflector->getArguments();
             foreach($parameters as $parameter) {
                 $this->parameters[] = new Parameter($this, $parameter);
             }
         }
         return $this->parameters;
+    }
+
+    public function definitionListForParameters()
+    {
+        $listItems = [];
+        foreach ($this->parameters as $parameter) {
+            $listItems[] = [
+                'element' => 'dt',
+                'config' => [
+                    'content' => $parameter->mediumDeclaration(),
+                    'class' => 'code'
+                ]
+            ];
+
+            $converter = new CommonMarkConverter();
+            $content = $converter->convertToHtml($parameter->shortDescription ."\n\n". $parameter->discussion);
+            $listItems[] = [
+                'element' => 'dd',
+                'config' => ['content' => $content]
+            ];
+        }
+
+        return Html5Gen::dl([
+                'content' => $listItems
+            ]);
     }
 
     public function returnType()
@@ -139,7 +167,9 @@ class Method extends MethodReflector implements HasDeclarations
         $this->parameterString($asHtml, $build);
         $this->returnTypeString($asHtml, $build);
 
-        $built = str_replace([' (', ' :'], ['(', ':'], implode(' ', $build));
+        $typeHintSpan = Html5Gen::span(['class' => 'typehint', 'content' => '[type] ']);
+
+        $built = str_replace([' (', '( ', ' :'], ['(', '('. $typeHintSpan, ':'], implode(' ', $build));
         if ($withLink) {
             return Html5Gen::a([
                 'class' => 'call-signature',
@@ -150,7 +180,49 @@ class Method extends MethodReflector implements HasDeclarations
         return $built;
     }
 
-    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = true)
+    public function mediumDeclaration($asHtml = true, $withLink = true)
+    {
+        $build = [];
+        $this->finalString($asHtml, $build);
+        $this->staticString($asHtml, $build);
+        $this->accessString($asHtml, $build);
+        $this->functionString($asHtml, $build);
+        $build[] = $this->name;
+        $this->parameterString($asHtml, $build);
+
+        $typeHintSpan = Html5Gen::span(['class' => 'typehint', 'content' => '[type] ']);
+
+        $built = str_replace([' (', '( ', ' :'], ['(', '('. $typeHintSpan, ':'], implode(' ', $build));
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $built,
+                'href' => $this->url()
+            ]);
+        }
+        return $built;
+    }
+
+    public function smallDeclaration($asHtml = true, $withLink = true)
+    {
+        $build = [];
+        $this->finalString($asHtml, $build);
+        $this->staticString($asHtml, $build);
+        $this->accessString($asHtml, $build);
+        $this->functionString($asHtml, $build);
+        $build[] = $this->name .'()';
+
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $built,
+                'href' => $this->url()
+            ]);
+        }
+        return $built;
+    }
+
+    public function miniDeclaration($asHtml = true, $withLink = true)
     {
         $build = [];
         $this->finalString($asHtml, $build);
@@ -172,6 +244,41 @@ class Method extends MethodReflector implements HasDeclarations
             'class'
         ];
         $with = [
+            '>abs<',
+            'stat',
+            'fin',
+            'priv',
+            'prot',
+            'pub',
+            'func',
+            'class'
+        ];
+
+        $build = str_replace($replace, $with, $base);
+        if ($withLink) {
+            return Html5Gen::a([
+                'class' => 'call-signature',
+                'content' => $build,
+                'href' => $this->url()
+            ]);
+        }
+        return $build;
+    }
+
+    public function microDeclaration($asHtml = true, $withLink = true, $showKeywords = false)
+    {
+        $base = $this->miniDeclaration($asHtml, false);
+        $replace = [
+            '>abs<',
+            'stat',
+            'fin',
+            'priv',
+            'prot',
+            'pub',
+            'func',
+            'class'
+        ];
+        $with = [
             '><',
             '',
             '',
@@ -181,18 +288,6 @@ class Method extends MethodReflector implements HasDeclarations
             '',
             ''
         ];
-        if ($showKeywords) {
-            $with = [
-                '>abs<',
-                'stat',
-                'fin',
-                'priv',
-                'prot',
-                'pub',
-                'func',
-                'class'
-            ];
-        }
 
         $build = str_replace($replace, $with, $base);
         if ($withLink) {
